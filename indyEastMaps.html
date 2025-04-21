@@ -142,11 +142,11 @@
         </select>
             <div id="medIncomeLegend" class="legend" style="display: block;">
                     <h4>Median Annual Household Income (2023, USD)</h4>
-                    <div><span style="background-color: #980043"></span>$240,000 or more</div>
+                    <div><span style="background-color: #980043"></span>$97,000 or more</div>
                     <div><span style="background-color: #dd1c77"></span></div>
                     <div><span style="background-color: #df65b0"></span></div>
                     <div><span style="background-color: #d7b5d8"></span></div>
-                    <div><span style="background-color: #f1eef6"></span>$45,000 or less</div>
+                    <div><span style="background-color: #f1eef6"></span>$22,000 or less</div>
                     <div><span style="background-color: #425A7030"></span>No data</div>
                 </div>
             <div id="cbRentersLegend" class="legend" style="display: none;">
@@ -160,26 +160,26 @@
                 </div>
             <div id="cbOwnersLegend" class="legend" style="display: none;">
                     <h4>Cost Burdened Homeowners (2023)</h4>
-                    <div><span style="background-color: #810f7c"></span>70%+</div>
+                    <div><span style="background-color: #810f7c"></span>35%+</div>
                     <div><span style="background-color: #8856a7"></span></div>
-                    <div><span style="background-color: #8c96c6"></span>30%</div>
+                    <div><span style="background-color: #8c96c6"></span>17%</div>
                     <div><span style="background-color: #b3cde3"></span></div>
                     <div><span style="background-color: #edf8fb"></span>0%</div>
                     <div><span style="background-color: #425A7030"></span>No data</div>
                 </div>
             <div id="pctHHLegend" class="legend" style="display: none;">
                     <h4>Percent Change in Households (2010-2023)</h4>
-                    <div><span style="background-color: #1b7837"></span>55%+</div>
+                    <div><span style="background-color: #1b7837"></span>50%+</div>
                     <div><span style="background-color: #7fbf7b"></span></div>
                     <div><span style="background-color: #d9f0d3"></span></div>
                     <div><span style="background-color: #f7f7f7"></span>0%</div>
                     <div><span style="background-color: #e7d4e8"></span></div>
                     <div><span style="background-color: #af8dc3"></span></div>
-                    <div><span style="background-color: #762a83"></span>-30%+</div>
+                    <div><span style="background-color: #762a83"></span>-20%+</div>
                     <div><span style="background-color: #425A7030"></span>No data</div>
                 </div>
             <div id="landUseLegend" class="legend" style="display: none;"> //change 
-                    <h4>Percent Change in Households (2010-2023)</h4>
+                    <h4>Land Use</h4>
                     <div><span style="background-color: #1b7837"></span>55%+</div>
                     <div><span style="background-color: #7fbf7b"></span></div>
                     <div><span style="background-color: #d9f0d3"></span></div>
@@ -190,7 +190,7 @@
                     <div><span style="background-color: #425A7030"></span>No data</div>
                 </div>
             <div id="pctLVLegend" class="legend" style="display: none;"> //change
-                    <h4>Percent Change in Households (2010-2023)</h4>
+                    <h4>Land Value as Percent of Assessed Value</h4>
                     <div><span style="background-color: #1b7837"></span>55%+</div>
                     <div><span style="background-color: #7fbf7b"></span></div>
                     <div><span style="background-color: #d9f0d3"></span></div>
@@ -200,14 +200,13 @@
                     <div><span style="background-color: #762a83"></span>-30%+</div>
                     <div><span style="background-color: #425A7030"></span>No data</div>
                 </div>
-
     <div id="map"></div>
 </div>
 
 <script>
-    const INITIAL_LOC = [-86.14, 39.78] //center on what's just east of Downtown Indy
+    const INITIAL_LOC = [-86.14, 39.78]
     const INITIAL_ZOOM = 12 //set initial zoom (zoom levels 9-12 best for cities depending on size)
-    const communityScaleGray = "#425A70" //could replace with different accent color, I personally like this branding 
+    const communityScaleGray = "#425A70" 
     const placeOfInterest = "IndyEastEMZB"
     const medIncomePalette = [ //Sequential colorBrewer Purple/Red ramp
                 '#f1eef6',
@@ -239,6 +238,28 @@
                 '#7fbf7b',
                 '#1b7837'
             ]
+    const landUsePalette = [
+
+
+            ]
+
+    const landValuePalette = [
+
+
+            ]
+
+    const neighborhoodConditionsPalette = [
+                "#8FAB40", //DCQ
+                "#CCE677", //DKU
+                "#EDFDC5", //DNI
+                "#8A8A8A", //OKCQ
+                "#D1D0CD", //OKKU
+                "#F0EFEB", //OKNI
+                "#333FA3", //HDCQ
+                "#838AE3", //HDKU
+                "#D4D7FB"  //HDNI
+
+            ]
  
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZW10em90MDEiLCJhIjoiY20zZ2kyd3RpMDRnajJscHoyMG5neGJldyJ9.poXi4pgd2CoXKV2B4kg1Cw ';
@@ -256,6 +277,7 @@
             promoteId: "GEOID"
         })
    
+        //Add sources!!: updated tracts source with neighborhood conditions + risk displacement
 
         map.addSource("parcels", {    
             type: "geojson",
@@ -267,7 +289,6 @@
             type: "geojson",
             data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/indyEastEMZB.geojson"
         })
-        
 
             map.addLayer({
                 id: "tracts-layer",  
@@ -303,15 +324,15 @@
                     ["interpolate", 
                     ["linear"],
                     ["get", "medIncome"],
-                    45000,
+                    22000,
                     medIncomePalette[0], 
-                    80000,
+                    40500,
                     medIncomePalette[1],
-                    130000,
+                    59000,
                     medIncomePalette[2],
-                    180000,
+                    78000,
                     medIncomePalette[3],
-                    240000,
+                    97000,
                     medIncomePalette[4]]],
                 "fill-outline-color": "white",
                 "fill-opacity": [
@@ -343,13 +364,13 @@
                     ["get", "cbRent"],
                     0,
                     cbRentersPalette[0], 
-                    15,
+                    0.33,
                     cbRentersPalette[1],
-                    30,
+                    0.44,
                     cbRentersPalette[2],
-                    45,
+                    0.55,
                     cbRentersPalette[3],
-                    70,
+                    0.70,
                     cbRentersPalette[4]]],
                 "fill-outline-color": "white",
                 "fill-opacity": [
@@ -382,13 +403,13 @@
                     ["get", "cbOwn"],
                     0,
                     cbOwnersPalette[0],
-                    15,
+                    0.11,
                     cbOwnersPalette[1], 
-                    30,
+                    0.17,
                     cbOwnersPalette[2],
-                    45,
+                    0.23,
                     cbOwnersPalette[3],
-                    70,
+                    0.35,
                     cbOwnersPalette[4],
                 ]],
                 "fill-outline-color": "white",
@@ -420,19 +441,19 @@
                     ["interpolate",
                     ["linear"],
                     ["get", "pctChHH"],
-                    -30,
+                    -0.20,
                     hhChangePalette[0],
-                    -15, 
+                    -0.13, 
                     hhChangePalette[1],
-                    -5,
+                    -0.05,
                     hhChangePalette[2],
                     0,
                     hhChangePalette[3], 
-                    10,
+                    0.13,
                     hhChangePalette[4],
-                    25,
+                    0.22,
                     hhChangePalette[5],
-                    55,
+                    0.5,
                     hhChangePalette[6]
                 ]],
                 "fill-outline-color": "white",
@@ -469,13 +490,7 @@
             "settlement-major-label", 
             "settlement-subdivision-label", 
             "settlement-minor-label"
-        )
-
-    //defaultView
-    adjustMapSize();
-    });
-
-    window.addEventListener('resize', adjustMapSize);
+        )});
 
 
     map.on('click', (e) => {
@@ -499,6 +514,7 @@
             .addTo(map);
     }});
 
+    window.addEventListener('resize', adjustMapSize);
 
     map.on("click", (e)=> {
         const [ selectedTract ]= map.queryRenderedFeatures(e.point, {
@@ -592,7 +608,7 @@
             }});
 
         map.setLayoutProperty(selectedLayer, 'visibility', 'visible');
-        map.setLayoutProperty(placeOfInterest+"-boundary", 'visibility', 'visible');
+        map.setLayoutProperty("emzb-outline-layer", 'visibility', 'visible');
         map.setLayoutProperty("road-label", 'visibility', 'visible');
         map.setLayoutProperty("settlement-major-label", 'visibility', 'visible');
         map.setLayoutProperty("settlement-subdivision-label", 'visibility', 'visible');
@@ -752,7 +768,6 @@
             }
             hoveredTractId = null;
         });
-
         </script>
     </body>
 </html>
