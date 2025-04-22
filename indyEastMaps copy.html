@@ -7,6 +7,7 @@
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/@turf/turf@^7/turf.min.js"></script> 
   <style>
         html, body {
             margin: 0;
@@ -222,8 +223,63 @@
     const INITIAL_LOC = [-86.14, 39.78];
     const INITIAL_ZOOM = 12;
     const communityScaleGray = "#425A70";
-    const medIncomePalette = ['#f1eef6','#d7b5d8','#df65b0','#dd1c77','#980043'];
+    const placeOfInterest = "IndyEastEMZB"
+    const medIncomePalette = [ //Sequential colorBrewer Purple/Red ramp
+                '#f1eef6',
+                '#d7b5d8',
+                '#df65b0',
+                '#dd1c77',
+                '#980043'
+            ]
+    const cbRentersPalette = [ //Sequential colorBrewer GrnBlu ramp
+                '#f6eff7',
+                '#bdc9e1',
+                '#67a9cf',
+                '#1c9099',
+                '#016c59'
+            ]
+    const cbOwnersPalette = [ //Sequential colorBrewer BluPur ramp
+                '#edf8fb',
+                '#b3cde3',
+                '#8c96c6',
+                '#8856a7',
+                '#810f7c'
+            ]
+    const hhChangePalette = [ //Diverging colorBrewer PurGre ramp
+                '#762a83',
+                '#af8dc3',
+                '#e7d4e8',
+                '#f7f7f7',
+                '#d9f0d3',
+                '#7fbf7b',
+                '#1b7837'
+            ]
+    const landUsePalette = [
 
+
+            ]
+
+    const landValuePalette = [
+
+
+            ]
+
+    const neighborhoodConditionsPalette = [
+                "#8FAB40", //DCQ
+                "#CCE677", //DKU
+                "#EDFDC5", //DNI
+                "#8A8A8A", //OKCQ
+                "#D1D0CD", //OKKU
+                "#F0EFEB", //OKNI
+                "#333FA3", //HDCQ
+                "#838AE3", //HDKU
+                "#D4D7FB"  //HDNI
+
+            ]
+ 
+
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZW10em90MDEiLCJhIjoiY20zZ2kyd3RpMDRnajJscHoyMG5neGJldyJ9.poXi4pgd2CoXKV2B4kg1Cw ';
+    
     let map;
     const BASEMAP_STYLES = {
       gray: 'mapbox://styles/emtzot01/cm6a8mjb5004g01qrd7cv07mq',
@@ -245,38 +301,80 @@
           type: "geojson",
           data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/marionCountyTracts.geojson",
           promoteId: "GEOID"
-        });
+        })
+
+        map.addSource("parcels", {    
+            type: "geojson",
+            data: "https://raw.githubusercontent.com/emtzot/mapSources/main/emzbParcels.geojson",
+            promoteId: "PARCEL_C"
+        })
+
+        map.addSource("emzBoundary", {    
+            type: "geojson",
+            data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/indyEastEMZB.geojson"
+        })
 
         map.addLayer({
-          id: "tracts-layer",
-          type: "fill",
-          source: "tracts",
-          paint: {
-            "fill-color": communityScaleGray,
-            "fill-opacity": 0.6,
-            "fill-outline-color": "white"
-          },
-          layout: { visibility: "none" }
-        });
+                id: "tracts-layer",  
+                type: "fill",
+                source: "tracts",
+                paint: {
+                    'fill-color': communityScaleGray,
+                    "fill-opacity": 0.6,
+                    "fill-outline-color": "white",
+                    "fill-outline-width": 1,
+                    "fill-opacity": [
+                        "case",
+                        ["boolean", ["feature-state", "hover"], false],
+                        0.95,
+                        0.6
+                ]},
+                layout: {
+                    visibility: "none"
+                }
+            },"road-label", 
+            "settlement-major-label", 
+            "settlement-subdivision-label", 
+            "settlement-minor-label"
+        )
 
         map.addLayer({
-          id: "tracts-medIncome",
-          type: "fill",
-          source: "tracts",
-          paint: {
-            "fill-color": [
-              "interpolate", ["linear"], ["get", "medIncome"],
-              22000, medIncomePalette[0],
-              40500, medIncomePalette[1],
-              59000, medIncomePalette[2],
-              78000, medIncomePalette[3],
-              97000, medIncomePalette[4]
-            ],
-            "fill-outline-color": "white",
-            "fill-opacity": 0.6
-          },
-          layout: { visibility: "visible" }
-        });
+            id: "tracts-medIncome",  
+            type: "fill",
+            source: "tracts",
+            paint: {
+                "fill-color": [
+                    "case", ["==", ["get", "medIncome"], null], communityScaleGray,
+                    ["interpolate", 
+                    ["linear"],
+                    ["get", "medIncome"],
+                    22000,
+                    medIncomePalette[0], 
+                    40500,
+                    medIncomePalette[1],
+                    59000,
+                    medIncomePalette[2],
+                    78000,
+                    medIncomePalette[3],
+                    97000,
+                    medIncomePalette[4]]],
+                "fill-outline-color": "white",
+                "fill-opacity": [
+                    "case", ["==", ["get", "medIncome"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.6
+            ]]
+             },
+             layout: {
+                visibility: "visible"
+             }
+        },"road-label", 
+        "settlement-major-label", 
+        "settlement-subdivision-label", 
+        "settlement-minor-label"
+    ) 
 
         const fillLayers = ["tracts-medIncome", "tracts-layer"];
 
