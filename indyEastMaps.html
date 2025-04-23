@@ -569,53 +569,36 @@
         "settlement-minor-label"
     )
 
-    map.addLayer({ 
+    map.addLayer({        //needs color updates for comp. zoning/land use 
             id: "parcels-landuse",  
             type: "fill",
             source: "parcels",
             paint: {
-                "fill-color": {
-                    "property": "USE14_CODE",
-                    "stops": [
-                        ['11', landUsePalette[0]],
-                        ['12', landUsePalette[0]],
-                        ['13', landUsePalette[0]],
-                        ['14', landUsePalette[0]],
-                        ['15', landUsePalette[0]],
-                        ['16', landUsePalette[1]],
-                        ['17', landUsePalette[1]],
-                        ['18', landUsePalette[1]],
-                        ['19', landUsePalette[2]],
-                        ['20', landUsePalette[2]],
-                        ['21', landUsePalette[4]],
-                        ['22', landUsePalette[4]],
-                        ['23', landUsePalette[4]],
-                        ['24', landUsePalette[7]],
-                        ['25', landUsePalette[7]],
-                        ['26', landUsePalette[20]], 
-                        ['30', landUsePalette[22]], 
-                        ['31', landUsePalette[14]], 
-                        ['41', landUsePalette[9]],
-                        ['42', landUsePalette[10]],
-                        ['51', landUsePalette[12]],
-                        ['52', landUsePalette[12]],
-                        ['53', landUsePalette[12]],
-                        ['54', landUsePalette[12]],
-                        ['55', landUsePalette[8]],
-                        ['56', landUsePalette[12]],
-                        ['57', landUsePalette[18]],
-                        ['58', landUsePalette[18]],
-                        ['60', landUsePalette[15]],
-                        ['61', landUsePalette[15]],
-                        ['70', landUsePalette[16]],
-                        ['71', landUsePalette[17]],
-                        ['80', landUsePalette[22]],
-                        ['81', landUsePalette[21]],
-                        ['91', landUsePalette[20]],
-                        ['92', landUsePalette[20]],
-                        ['93', landUsePalette[19]],
-                        [null, communityScaleGray]
-                    ]},
+                "fill-color": [
+                    "match",
+                    ["to-string", ["get", "USE14_CODE"]],
+                        "11", landUsePalette[0], 
+                        "12", landUsePalette[0],
+                        '13', landUsePalette[0], 
+                        '14', landUsePalette[0], 
+                        '15', landUsePalette[0], 
+                        '16', landUsePalette[1], 
+                        '17', landUsePalette[1], 
+                        '18', landUsePalette[1], 
+                        '19', landUsePalette[2], 
+                        '20', landUsePalette[2], 
+                        '21', landUsePalette[4],
+                        '22', landUsePalette[4],
+                        '23', landUsePalette[4],
+                        '24', landUsePalette[7],
+                        '25', landUsePalette[7],
+                        '26', landUsePalette[20], 
+                        '30', landUsePalette[22], 
+                        '31', landUsePalette[14], 
+                        '41', landUsePalette[9],
+                        '42', landUsePalette[10],
+                        communityScaleGray // Default for other values
+                        ],
                 "fill-outline-color": "white",
                 "fill-opacity": [
                     "case", ["==", ["get", "USE14_CODE"], null], 0.3,
@@ -623,7 +606,7 @@
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
                     0.6
-            ]]
+                    ]]
              },
              layout: {
                 visibility: "none"
