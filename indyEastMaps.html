@@ -1,7 +1,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Indy East Mapping</title>
+        <title>Indy East Draft</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <link
@@ -193,17 +193,12 @@
             <div><span style="background-color: #fff8bf"></span>Low density residential</div>
             <div><span style="background-color: #ffd489"></span>Middle density residential</div>
             <div><span style="background-color: #ffa734"></span>High density residential</div>
-            <div><span style="background-color: #f8c0c0"></span>Office</div>
-            <div><span style="background-color: #da6262"></span>Community commercial</div>
-            <div><span style="background-color: #c91212"></span>Heavy commercial</div>
-            <div><span style="background-color: #d899dd"></span>Mixed use</div>
-            <div><span style="background-color: #7e3185"></span>Downtown mixed use</div>
+            <div><span style="background-color: #da6262"></span>Commercial</div>
+            <div><span style="background-color: #b560bb"></span>Mixed use</div>
             <div><span style="background-color: #928efa"></span>Utilities</div>
             <div><span style="background-color: #6663a8"></span>Light industrial</div>
             <div><span style="background-color: #323052"></span>Heavy industrial</div>
-            <div><span style="background-color: #8ac1eb"></span>Education and medicine</div>
-            <div><span style="background-color: #5db0f0"></span>Place of worship</div>
-            <div><span style="background-color: #058ef7"></span>Other community use</div>
+            <div><span style="background-color: #5db0f0"></span>Community use</div>
             <div><span style="background-color: #24910a"></span>Agriculture</div>
             <div><span style="background-color: #d4f088"></span>Park</div>
             <div><span style="background-color: #a3e2f0"></span>Major body of water</div>
@@ -267,7 +262,7 @@
                 "#f8c0c0", //Office
                 "#da6262", //Community commercial
                 "#c91212", //Heavy commercial
-                "#d899dd", //Mixed use
+                "#b560bb", //Mixed use
                 "#7e3185", //Downtown mixed use
                 "#928efa", //Utilities
                 "#6663a8", //Light industrial
@@ -286,7 +281,7 @@
                 "#fff" //Vacant + unknown
             ]
 
-    const landValuePalette = [ //sequential ColorBrewer Blu ramp
+    const landValuePalette = [
                 '#f1eef6',
                 '#bdc9e1',
                 '#74a9cf',
@@ -294,7 +289,7 @@
                 '#045a8d'
             ]
 
-    const neighborhoodConditionsPalette = [ //custom colors for neighborhood conditions
+    const neighborhoodConditionsPalette = [
                 "#8FAB40", //DCQ
                 "#CCE677", //DKU
                 "#EDFDC5", //DNI
@@ -305,7 +300,7 @@
                 "#838AE3", //HDKU
                 "#D4D7FB"  //HDNI
             ]
-    const pctIncomeChPalette = [ //sequential ColorBrewer Grn ramp
+    const pctIncomeChPalette = [
                 '#edf8fb',
                 '#b2e2e2',
                 '#66c2a4',
@@ -338,6 +333,8 @@
             data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/marionCountyTracts.geojson",
             promoteId: "GEOID"
         })
+   
+        //Add sources!!: update tracts source with neighborhood conditions + risk displacement + change in HH income 
 
         map.addSource("parcels", {    
             type: "geojson",
@@ -590,22 +587,22 @@
                         ['18', landUsePalette[1]],
                         ['19', landUsePalette[2]],
                         ['20', landUsePalette[2]],
-                        ['21', landUsePalette[3]],
+                        ['21', landUsePalette[4]],
                         ['22', landUsePalette[4]],
-                        ['23', landUsePalette[5]],
-                        ['24', landUsePalette[6]],
+                        ['23', landUsePalette[4]],
+                        ['24', landUsePalette[7]],
                         ['25', landUsePalette[7]],
                         ['26', landUsePalette[20]], 
                         ['30', landUsePalette[22]], 
                         ['31', landUsePalette[14]], 
                         ['41', landUsePalette[9]],
                         ['42', landUsePalette[10]],
-                        ['51', landUsePalette[11]],
-                        ['52', landUsePalette[11]],
-                        ['53', landUsePalette[13]],
+                        ['51', landUsePalette[12]],
+                        ['52', landUsePalette[12]],
+                        ['53', landUsePalette[12]],
                         ['54', landUsePalette[12]],
                         ['55', landUsePalette[8]],
-                        ['56', landUsePalette[13]],
+                        ['56', landUsePalette[12]],
                         ['57', landUsePalette[18]],
                         ['58', landUsePalette[18]],
                         ['60', landUsePalette[15]],
@@ -681,8 +678,8 @@
             source: "emzBoundary",
             paint: {
                 "line-color": communityScaleGray,
-                "line-width": 3,
-                "line-opacity": 1,
+                "line-width": 4,
+                "line-opacity": 0.8,
                 },
             layout: {
                 visibility: "visible"
@@ -699,22 +696,22 @@
 
     window.addEventListener('resize', adjustMapSize);
 
-
+  
     map.on('click', (e) => {
-        const [selectedTract] = map.queryRenderedFeatures(e.point, {               
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["tracts-medIncome"]
         });
 
-        if (selectedTract) {
-            const medianIncome = selectedTract.properties.medIncome;
+        if (selectedGeo) {
+            const medianIncome = selectedGeo.properties.medIncome;
             const displayIncome = medianIncome === null || medianIncome === undefined ? 'No available data' : `Annual median household income: $${medianIncome.toLocaleString()} (2023 USD)`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
-            .setLngLat(selectedTract.geometry.coordinates[0][0])
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
             .setHTML(`
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
-                <div class="mapboxgl-popup-header">${selectedTract.properties.NAME}</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.NAME}</div>
                 <div class="mapboxgl-popup-content">${displayIncome}
                 </div>
             </div>`)
@@ -722,20 +719,20 @@
     }});
 
     map.on('click', (e) => {
-        const [selectedTract] = map.queryRenderedFeatures(e.point, {               
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["tracts-pctChIncome"]
         });
 
-        if (selectedTract) {
-            const incomeChange = selectedTract.properties.pctChInfIn;
+        if (selectedGeo) {
+            const incomeChange = selectedGeo.properties.pctChInfIn;
             const roundedPctIncomeCh = Math.round(incomeChange * 1000) / 10
-            const displayPctIncomeCh = incomeChange === null || incomeChange === undefined ? 'No available data' : `${selectedTract.properties.NAME} saw a ${roundedPctIncomeCh}% change in median annual household income (2015-2023).`;
+            const displayPctIncomeCh = incomeChange === null || incomeChange === undefined ? 'No available data' : `${selectedGeo.properties.NAME} saw a ${roundedPctIncomeCh}% change in median annual household income (2015-2023).`;
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
-            .setLngLat(selectedTract.geometry.coordinates[0][0])
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
             .setHTML(`
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
-                <div class="mapboxgl-popup-header">${selectedTract.properties.NAME}</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.NAME}</div>
                 <div class="mapboxgl-popup-content">${displayPctIncomeCh}
                 </div>
             </div>`)
@@ -744,37 +741,36 @@
 
 
     map.on("click", (e)=> {
-        const [ selectedTract ]= map.queryRenderedFeatures(e.point, {
+        const [ selectedGeo ]= map.queryRenderedFeatures(e.point, {
             layers: ["tracts-layer"]
         });
 
-        if (selectedTract) {
+        if (selectedGeo) {
             new mapboxgl.Popup({closeButton: true}, {clickToClose: true})
-            .setLngLat(selectedTract.geometry.coordinates[0][0]) 
+            .setLngLat(selectedGeo.geometry.coordinates[0][0]) 
             .setHTML(`<div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
-                <div class="mapboxgl-popup-header">${selectedTract.properties.NAME}</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.NAME}</div>
             </div>`)
             .addTo(map)
     }});
 
-
     map.on('click', (e) => {
-        const [selectedTract] = map.queryRenderedFeatures(e.point, {               
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["tracts-pctCostBurdenedRenters"]
         });
 
-        if (selectedTract) {
-            const pctRent30 = selectedTract.properties.cbRent;
+        if (selectedGeo) {
+            const pctRent30 = selectedGeo.properties.cbRent;
             const roundedPctRent30 = Math.round(pctRent30 * 1000) / 10
-            const displayPctRent30 = pctRent30 === null || pctRent30 === undefined ? 'No available data' : `${roundedPctRent30}% of renters in ${selectedTract.properties.NAME} spend more than 30% of income on housing costs.`;
+            const displayPctRent30 = pctRent30 === null || pctRent30 === undefined ? 'No available data' : `${roundedPctRent30}% of renters in ${selectedGeo.properties.NAME} spend more than 30% of income on housing costs.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
-            .setLngLat(selectedTract.geometry.coordinates[0][0])
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
             .setHTML(`
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
-                <div class="mapboxgl-popup-header">${selectedTract.properties.NAME}</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.NAME}</div>
                 <div class="mapboxgl-popup-content">${displayPctRent30}
                 </div>
             </div>`)
@@ -782,21 +778,21 @@
     }});
 
     map.on('click', (e) => {
-        const [selectedTract] = map.queryRenderedFeatures(e.point, {               
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["tracts-pctCostBurdenedOwners"]
         });
 
-        if (selectedTract) {
-            const pctOwned30 = selectedTract.properties.cbOwn;
+        if (selectedGeo) {
+            const pctOwned30 = selectedGeo.properties.cbOwn;
             const roundedPctOwned30 = Math.round(pctOwned30 * 1000) / 10
-            const displayPctOwned30 = pctOwned30 === null || pctOwned30 === undefined ? 'No available data' : `${roundedPctOwned30}% of homeowners in ${selectedTract.properties.NAME} spend more than 30% of income on housing costs.`;
+            const displayPctOwned30 = pctOwned30 === null || pctOwned30 === undefined ? 'No available data' : `${roundedPctOwned30}% of homeowners in ${selectedGeo.properties.NAME} spend more than 30% of income on housing costs.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
-            .setLngLat(selectedTract.geometry.coordinates[0][0])
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
             .setHTML(`
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
-                <div class="mapboxgl-popup-header">${selectedTract.properties.NAME}</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.NAME}</div>
                 <div class="mapboxgl-popup-content">${displayPctOwned30}
                 </div>
             </div>`)
@@ -804,22 +800,44 @@
     }});
 
     map.on('click', (e) => {
-        const [selectedTract] = map.queryRenderedFeatures(e.point, {               
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["tracts-pctHH"]
         });
 
-        if (selectedTract) {
-            const pctChangeHH = selectedTract.properties.pctChHH;
+        if (selectedGeo) {
+            const pctChangeHH = selectedGeo.properties.pctChHH;
             const roundedPctChangeHH = Math.round(pctChangeHH * 1000) / 10
-            const displayPctChangeHH = pctChangeHH === null || pctChangeHH === undefined ? 'No available data' : `${selectedTract.properties.NAME} saw a ${roundedPctChangeHH}% change in the number of households (2010-2023).`;
+            const displayPctChangeHH = pctChangeHH === null || pctChangeHH === undefined ? 'No available data' : `${selectedGeo.properties.NAME} saw a ${roundedPctChangeHH}% change in the number of households (2010-2023).`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
-            .setLngLat(selectedTract.geometry.coordinates[0][0])
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
             .setHTML(`
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
-                <div class="mapboxgl-popup-header">${selectedTract.properties.NAME}</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.NAME}</div>
                 <div class="mapboxgl-popup-content">${displayPctChangeHH}
+                </div>
+            </div>`)
+            .addTo(map);
+    }});
+
+    map.on('click', (e) => {
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
+            layers: ["parcels-pctLV"]
+        });
+
+        if (selectedGeo) {
+            const pctLandValue = selectedGeo.properties.pctLV;
+            const roundedPctLV = Math.round(pctLandValue * 1000) / 10
+            const displayPctLV = pctLandValue === null || pctLandValue === undefined ? 'No available data' : ` Land value accounts for ${roundedPctLV}% of Parcel #${selectedGeo.properties.PARCEL_C}'s total assessed value.`;
+
+            new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
+            .setHTML(`
+                <div class="mapboxgl-popup">
+                <div class="mapboxgl-popup-close-button">x</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
+                <div class="mapboxgl-popup-content">${displayPctLV}
                 </div>
             </div>`)
             .addTo(map);
@@ -866,167 +884,44 @@
         }});
 
 
+        let hoveredGeoId = null;
 
-    let hoveredTractId = null
+        const hoverLayers = [
+            { id: 'tracts-medIncome', source: 'tracts'},
+            { id: 'tracts-pctChIncome', source: 'tracts'},
+            { id: 'tracts-pctCostBurdenedRenters', source: 'tracts'},
+            { id: 'parcels-pctLV', source: 'parcels' },
+            { id: 'tracts-pctCostBurdenedOwners', source: 'tracts' },
+            { id: 'tracts-pctHH', source: 'tracts' },
+            { id: 'tracts-layer', source: 'tracts' }
+        ];
 
-    map.on('mousemove', 'tracts-medIncome', (e) => {
-            if (e.features.length > 0) {
-                if (hoveredTractId !== null) {
+        hoverLayers.forEach(({ id, source }) => {
+            map.on('mousemove', id, (e) => {
+                if (e.features.length > 0) {
+                    if (hoveredGeoId !== null) {
+                        map.setFeatureState(
+                            { source, id: hoveredGeoId },
+                            { hover: false }
+                        );
+                    }
+                    hoveredGeoId = e.features[0].id;
                     map.setFeatureState(
-                        { source: 'tracts', id: hoveredTractId },
+                        { source, id: hoveredGeoId },
+                        { hover: true }
+                    );
+                }
+            });
+
+            map.on('mouseleave', id, () => {
+                if (hoveredGeoId !== null) {
+                    map.setFeatureState(
+                        { source, id: hoveredGeoId },
                         { hover: false }
                     );
                 }
-                hoveredTractId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'tracts-medIncome', () => {
-            if (hoveredTractId !== null) {
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: false }
-                );
-            }
-            hoveredTractId = null;
-        });
-
-        map.on('mousemove', 'tracts-pctChIncome', (e) => {
-            if (e.features.length > 0) {
-                if (hoveredTractId !== null) {
-                    map.setFeatureState(
-                        { source: 'tracts', id: hoveredTractId },
-                        { hover: false }
-                    );
-                }
-                hoveredTractId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'tracts-pctChIncome', () => {
-            if (hoveredTractId !== null) {
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: false }
-                );
-            }
-            hoveredTractId = null;
-        });
-
-
-        map.on('mousemove', 'tracts-pctCostBurdenedRenters', (e) => {
-            if (e.features.length > 0) {
-                if (hoveredTractId !== null) {
-                    map.setFeatureState(
-                        { source: 'tracts', id: hoveredTractId },
-                        { hover: false }
-                    );
-                }
-                hoveredTractId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'tracts-pctCostBurdenedRenters', () => {
-            if (hoveredTractId !== null) {
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: false }
-                );
-            }
-            hoveredTractId = null;
-        });
-
-
-        map.on('mousemove', 'tracts-pctCostBurdenedOwners', (e) => {
-            if (e.features.length > 0) {
-                if (hoveredTractId !== null) {
-                    map.setFeatureState(
-                        { source: 'tracts', id: hoveredTractId },
-                        { hover: false }
-                    );
-                }
-                hoveredTractId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'tracts-pctCostBurdenedOwners', () => {
-            if (hoveredTractId !== null) {
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: false }
-                );
-            }
-            hoveredTractId = null;
-        });
-
-
-        map.on('mousemove', 'tracts-pctHH', (e) => {
-            if (e.features.length > 0) {
-                if (hoveredTractId !== null) {
-                    map.setFeatureState(
-                        { source: 'tracts', id: hoveredTractId },
-                        { hover: false }
-                    );
-                }
-                hoveredTractId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'tracts-pctHH', () => {
-            if (hoveredTractId !== null) {
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: false }
-                );
-            }
-            hoveredTractId = null;
-        });
-        
-
-        map.on('mousemove', 'tracts-layer', (e) => {
-            if (e.features.length > 0) {
-                if (hoveredTractId !== null) {
-                    map.setFeatureState(
-                        { source: 'tracts', id: hoveredTractId },
-                        { hover: false }
-                    );
-                }
-                hoveredTractId = e.features[0].id;
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: true }
-                );
-            }
-        });
-
-        map.on('mouseleave', 'tracts-layer', () => {
-            if (hoveredTractId !== null) {
-                map.setFeatureState(
-                    { source: 'tracts', id: hoveredTractId },
-                    { hover: false }
-                );
-            }
-            hoveredTractId = null;
+                hoveredGeoId = null;
+            });
         });
 
         </script>
