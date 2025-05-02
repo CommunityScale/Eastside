@@ -139,6 +139,7 @@
             <option value="tracts-pctHH">Percent Change in Households (2010-2023)</option>
             <option value="parcels-landuse">Land Use by Parcel</option> 
             <option value="parcels-pctLV">Land Value as Percent of Assessed Value</option>
+            <option value="parcels-riskDisplacement">Risk of Displacement</option>
             <option value="tracts-layer">Marion County</option>
         </select>
         <div id="medIncomeLegend" class="legend" style="display: block;">
@@ -156,7 +157,8 @@
             <div><span style="background-color: #2ca25f"></span></div>
             <div><span style="background-color: #66c2a4"></span>50%</div>
             <div><span style="background-color: #b2e2e2"></span></div>
-            <div><span style="background-color: #edf8fb"></span>0% or negative growth</div>
+            <div><span style="background-color: #e7d4e8"></span>0%</div>
+            <div><span style="background-color: #762a83"></span>Negative growth</div>
             <div><span style="background-color: #425A7030"></span>No data</div>
         </div>
         <div id="cbRentersLegend" class="legend" style="display: none;">
@@ -216,6 +218,14 @@
             <div><span style="background-color: #74a9cf"></span>35%</div>
             <div><span style="background-color: #bdc9e1"></span></div>
             <div><span style="background-color: #f1eef6"></span>90% or more</div>
+        </div>
+        <div id="rdLegend" class="legend" style="display: none;">
+            <h4>Risk of Displacement Index</h4> 
+            <div><span style="background-color: #810f7c"></span>Most risk</div>
+            <div><span style="background-color: #8856a7"></span></div>
+            <div><span style="background-color: #8c96c6"></span></div>
+            <div><span style="background-color: #b3cde3"></span></div>
+            <div><span style="background-color: #edf8fb"></span>Least risk</div>
         </div>
     <div id="map"></div>
 </div>
@@ -300,14 +310,63 @@
                 "#838AE3", //HDKU
                 "#D4D7FB"  //HDNI
             ]
-    const pctIncomeChPalette = [
-                '#edf8fb',
+    const pctIncomeChPalette = [ //slightly different PurGr color ramp??
+                '#762a83', 
+                '#e7d4e8',
                 '#b2e2e2',
                 '#66c2a4',
                 '#2ca25f',
                 '#006d2c'
             ]
+
+    const riskDisplacementPalette = [ //Purple-blue color palette as used in Apex
+                '#edf8fb',
+                '#b3cde3',
+                '#8c96c6',
+                '#8856a7',
+                '#810f7c'
+            ]
  
+    const landUseColor = [
+                    ['11', landUsePalette[0]],
+                    ['12', landUsePalette[0]],
+                    ['13', landUsePalette[0]],
+                    ['14', landUsePalette[0]],
+                    ['15', landUsePalette[0]],
+                    ['16', landUsePalette[1]],
+                    ['17', landUsePalette[1]],
+                    ['18', landUsePalette[1]],
+                    ['19', landUsePalette[2]],
+                    ['20', landUsePalette[2]],
+                    ['21', landUsePalette[4]],
+                    ['22', landUsePalette[4]],
+                    ['23', landUsePalette[4]],
+                    ['24', landUsePalette[7]],
+                    ['25', landUsePalette[7]],
+                    ['26', landUsePalette[20]], 
+                    ['30', landUsePalette[22]], 
+                    ['31', landUsePalette[14]], 
+                    ['41', landUsePalette[9]],
+                    ['42', landUsePalette[10]],
+                    ['51', landUsePalette[12]],
+                    ['52', landUsePalette[12]],
+                    ['53', landUsePalette[12]],
+                    ['54', landUsePalette[12]],
+                    ['55', landUsePalette[8]],
+                    ['56', landUsePalette[12]],
+                    ['57', landUsePalette[18]],
+                    ['58', landUsePalette[18]],
+                    ['60', landUsePalette[15]],
+                    ['61', landUsePalette[15]],
+                    ['70', landUsePalette[16]],
+                    ['71', landUsePalette[17]],
+                    ['80', landUsePalette[22]],
+                    ['81', landUsePalette[21]],
+                    ['91', landUsePalette[20]],
+                    ['92', landUsePalette[20]],
+                    ['93', landUsePalette[19]],
+                    [null, communityScaleGray]
+                ]
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZW10em90MDEiLCJhIjoiY20zZ2kyd3RpMDRnajJscHoyMG5neGJldyJ9.poXi4pgd2CoXKV2B4kg1Cw ';
     const map = new mapboxgl.Map({
@@ -334,11 +393,11 @@
             promoteId: "GEOID"
         })
    
-        //Add sources!!: update tracts source with neighborhood conditions + risk displacement + change in HH income 
+        //Add sources!!: update tracts source with neighborhood conditions + risk displacement 
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/emtzot/mapSources/main/emzbParcels.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/emzbParcels_rd.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -419,16 +478,19 @@
                     ["interpolate", 
                     ["linear"],
                     ["get", "pctChInfIn"],
-                    0,
+                    -0.22,
                     pctIncomeChPalette[0], 
-                    0.3,
+                    0,
                     pctIncomeChPalette[1],
-                    0.5,
+                    0.3,
                     pctIncomeChPalette[2],
-                    0.78,
+                    0.5,
                     pctIncomeChPalette[3],
+                    0.78,
+                    pctIncomeChPalette[4],
                     1,
-                    pctIncomeChPalette[4]]],
+                    pctIncomeChPalette[5]
+                    ]],
                 "fill-outline-color": "white",
                 "fill-opacity": [
                     "case", ["==", ["get", "pctChInfIn"], null], 0.3,
@@ -569,7 +631,7 @@
         "settlement-minor-label"
     )
 
-    map.addLayer({        //needs color updates for comp. zoning/land use 
+    map.addLayer({ 
             id: "parcels-landuse",  
             type: "fill",
             source: "parcels",
@@ -597,7 +659,11 @@
                         '31', landUsePalette[14], 
                         '41', landUsePalette[9],
                         '42', landUsePalette[10],
-                        communityScaleGray // Default for other values
+                        '51', landUsePalette[12],
+                        '52', landUsePalette[12],
+                        '53', landUsePalette[12],
+                        '54', landUsePalette[12],
+                        communityScaleGray
                         ],
                 "fill-outline-color": "white",
                 "fill-opacity": [
@@ -645,6 +711,63 @@
                     0.95,
                     0.6
             ]]
+             },
+             layout: {
+                visibility: "none"
+             }
+        },"road-label", 
+        "settlement-major-label", 
+        "settlement-subdivision-label", 
+        "settlement-minor-label"
+    ) 
+
+    map.addLayer({ 
+            id: "parcels-riskDisplacement",  //set up with palette, button, etc
+            type: "fill",
+            source: "parcels",
+            paint: {
+                "fill-color": [
+                    "case", ["==", ["get", "residential"], null], communityScaleGray,
+                    ["interpolate", 
+                    ["linear"],
+                    ["get", "rd_mm_3"],
+                    0.1,
+                    riskDisplacementPalette[0], 
+                    0.3,
+                    riskDisplacementPalette[1],
+                    0.5,
+                    riskDisplacementPalette[2],
+                    0.7,
+                    riskDisplacementPalette[3],
+                    0.90,
+                    riskDisplacementPalette[4]]],
+                "fill-outline-color": "#545453",
+                "fill-opacity": [
+                    "case", ["==", ["get", "residential"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.6
+            ]]
+             },
+             layout: {
+                visibility: "none"
+             }
+        },"road-label", 
+        "settlement-major-label", 
+        "settlement-subdivision-label", 
+        "settlement-minor-label"
+    ) 
+
+    map.addLayer({ 
+            id: "parcels-vacantResi",  //set up with palette, button, etc
+            type: "line",
+            source: "parcels",
+            paint: {
+                "line-color": ["case",
+                    ["==", ["get", "vacantRes"], 1], "#f5bc20"],
+                "line-width": 2,
+                "line-opacity": 0.8
              },
              layout: {
                 visibility: "none"
@@ -862,6 +985,9 @@
         document.getElementById('pctHHLegend').style.display = 'block';
         }   else if (selectedLayer === 'parcels-landuse') {
         document.getElementById('landUseLegend').style.display = 'block';
+        }   else if (selectedLayer === 'parcels-riskDisplacement') {
+        document.getElementById('rdLegend').style.display = 'block';
+        document.getElementById("parcels-vacantResi").layout.visibility = 'visible';
         }   else if (selectedLayer === 'parcels-pctLV') {
         document.getElementById('pctLVLegend').style.display = 'block';
         }});
@@ -874,6 +1000,7 @@
             { id: 'tracts-pctChIncome', source: 'tracts'},
             { id: 'tracts-pctCostBurdenedRenters', source: 'tracts'},
             { id: 'parcels-pctLV', source: 'parcels' },
+            { id: 'parcels-riskDisplacement', source: 'parcels' },
             { id: 'tracts-pctCostBurdenedOwners', source: 'tracts' },
             { id: 'tracts-pctHH', source: 'tracts' },
             { id: 'tracts-layer', source: 'tracts' }
