@@ -140,6 +140,7 @@
             <option value="parcels-landuse">Land Use by Parcel</option> 
             <option value="parcels-pctLV">Land Value as Percent of Assessed Value</option>
             <option value="parcels-riskDisplacement">Risk of Displacement</option>
+            <option value="parcels-ownership">Ownership Dynamics</option>
             <option value="tracts-layer">Marion County</option>
         </select>
         <div id="medIncomeLegend" class="legend" style="display: block;">
@@ -226,6 +227,15 @@
             <div><span style="background-color: #8c96c6"></span></div>
             <div><span style="background-color: #b3cde3"></span></div>
             <div><span style="background-color: #edf8fb"></span>Least risk</div>
+        </div>
+        <div id="ownershipLegend" class="legend" style="display: none;">
+            <h4>Homeownership Dynamics</h4> 
+            <div><span style="background-color: #f2e22c"></span>Over 65 deduction</div>
+            <div><span style="background-color: #fa2173"></span>Over 65 deduction & high percent land value</div>
+            <div><span style="background-color: #559428"></span>Homestead deduction</div>
+            <div><span style="background-color: #79a8f2"></span>Classed residential</div>
+            <div><span style="background-color: #425A70"></span>Exempt/other</div>
+            <div><span style="background-color: #425A7030"></span>Not zoned or classed residential </div>
         </div>
     <div id="map"></div>
 </div>
@@ -326,6 +336,14 @@
                 '#8856a7',
                 '#810f7c'
             ]
+
+    const ownershipPalette = [ //categorical palette to highlight senior homeownership
+                '#f2e22c',
+                '#fa2a73',
+                '#559428',
+                '#79a8f2',
+                communityScaleGray
+            ]
  
     const landUseColor = [
                     ['11', landUsePalette[0]],
@@ -397,7 +415,7 @@
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/emzbParcels_rd.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/emzb_parcels.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -722,7 +740,7 @@
     ) 
 
     map.addLayer({ 
-            id: "parcels-riskDisplacement",  //set up with palette, button, etc
+            id: "parcels-riskDisplacement",  
             type: "fill",
             source: "parcels",
             paint: {
@@ -741,13 +759,17 @@
                     riskDisplacementPalette[3],
                     0.90,
                     riskDisplacementPalette[4]]],
-                "fill-outline-color": "#545453",
+                "fill-outline-color": [
+                    "case",
+                    ["==", ["get", "vacantRes"], 1], "#fa1b32", 
+                    "#545453"
+                ],
                 "fill-opacity": [
                     "case", ["==", ["get", "residential"], null], 0.3,
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.6
+                    0.7 //higher opacity value? So that values stick out??
             ]]
              },
              layout: {
@@ -760,7 +782,37 @@
     ) 
 
     map.addLayer({ 
-            id: "parcels-vacantResi",  //set up with palette, button, etc
+            id: "parcels-ownership",  
+            type: "fill",
+            source: "parcels",
+            paint: {
+                "fill-color": [
+                    "match",
+                    ["get", "seniorResi"],
+                        1, ownershipPalette[0], 
+                        2, ownershipPalette[1],
+                        3, ownershipPalette[2], 
+                        4, ownershipPalette[3],
+                        5, communityScaleGray,
+                        communityScaleGray
+                        ],
+                "fill-outline-color": "#545453",
+                "fill-opacity": [
+                    "case", ["==", ["get", "seniorResi"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.6
+            ]]
+             },
+             layout: {
+                visibility: "none"
+             }
+        }
+    ) 
+
+    map.addLayer({ 
+            id: "parcels-vacantResi",  //figure out how to add this with the change of layers?? Or toggle on/off
             type: "line",
             source: "parcels",
             paint: {
@@ -949,14 +1001,82 @@
             .addTo(map);
     }});
 
+    map.on('click', (e) => { //risk displacement pop-up
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
+            layers: ["parcels-riskDisplacement"]
+        });
+
+        if (selectedGeo) {
+            const pctLandValue = selectedGeo.properties.pctLV;
+            const roundedPctLV = Math.round(pctLandValue * 1000) / 10
+            const displayPctLV = pctLandValue === null || pctLandValue === undefined ? 'No available data' : ` Land value accounts for ${roundedPctLV}% of Parcel #${selectedGeo.properties.PARCEL_C}'s total assessed value.`;
+
+            new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
+            .setHTML(`
+                <div class="mapboxgl-popup">
+                <div class="mapboxgl-popup-close-button">x</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
+                <div class="mapboxgl-popup-content">${displayPctLV}
+                </div>
+            </div>`)
+            .addTo(map);
+    }});
+
+    map.on('click', (e) => { //ownership pop-up
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
+            layers: ["parcels-ownership"]
+        });
+
+        if (selectedGeo) {
+            const residenceCode = selectedGeo.properties.seniorResi;
+            const assessedVal = selectedGeo.properties.assessedVal;
+
+            const resiText = {
+            1 : `Parcel #${selectedGeo.properties.PARCEL_C} took both a Homestead and an Over 65 tax credit in 2024.`,
+            2 : `Parcel #${selectedGeo.properties.PARCEL_C} took an Over 65 tax credit in 2024. Land value for this parcel exceeds 10% of 2024 total assessed value.`,
+            3 : `Parcel #${selectedGeo.properties.PARCEL_C} took a Homestead tax credit in 2024.`,
+            4 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned and classed for residential use.`,
+            5 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned is residential use and classed 'EXEMPT' or 'COMMERCIAL.'`
+            };
+
+            const displayResi = resiText[residenceCode]|| `Neither classed nor zoned for residential use.`;
+            const displayVal = `Assessed parcel value: $${assessedVal.toLocaleString()} (2024). `
+
+            new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
+            .setLngLat(e.lngLat) //selectedGeo.geometry.coordinates[0][0]
+            .setHTML(`
+                <div class="mapboxgl-popup">
+                <div class="mapboxgl-popup-close-button">x</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
+                <div class="mapboxgl-popup-content">${displayResi}<br>${displayVal}
+                </div>
+            </div>`)
+            .addTo(map);
+    }});
+
+    const dataLayers = [
+            'tracts-medIncome',
+            'tracts-pctChIncome',
+            'tracts-pctCostBurdenedRenters',
+            'parcels-landuse',
+            'parcels-pctLV',
+            'parcels-riskDisplacement',
+            'tracts-pctCostBurdenedOwners',
+            'parcels-ownership',
+            'tracts-pctHH',
+            'tracts-layer'
+        ]
+
     const dropdown = document.getElementById('layer-dropdown');
 
     dropdown.addEventListener('change', function() {
         const selectedLayer = dropdown.value;
-        map.getStyle().layers.forEach(layer => {
-            if (layer.id !== selectedLayer) {
-            map.setLayoutProperty(layer.id, 'visibility', 'none');
-            }});
+        dataLayers.forEach(layerId => {
+            if (layerId !== selectedLayer && map.getLayer(layerId)) {
+            map.setLayoutProperty(layerId, 'visibility', 'none');
+        }
+    });
 
         map.setLayoutProperty(selectedLayer, 'visibility', 'visible');
         map.setLayoutProperty("emzb-outline-layer", 'visibility', 'visible');
@@ -987,8 +1107,9 @@
         document.getElementById('landUseLegend').style.display = 'block';
         }   else if (selectedLayer === 'parcels-riskDisplacement') {
         document.getElementById('rdLegend').style.display = 'block';
-        document.getElementById("parcels-vacantResi").layout.visibility = 'visible';
-        }   else if (selectedLayer === 'parcels-pctLV') {
+        }   else if (selectedLayer === 'parcels-ownership') {
+        document.getElementById('ownershipLegend').style.display = 'block';
+        } else if (selectedLayer === 'parcels-pctLV') {
         document.getElementById('pctLVLegend').style.display = 'block';
         }});
 
@@ -1001,6 +1122,7 @@
             { id: 'tracts-pctCostBurdenedRenters', source: 'tracts'},
             { id: 'parcels-pctLV', source: 'parcels' },
             { id: 'parcels-riskDisplacement', source: 'parcels' },
+            { id: 'parcels-ownership', source: 'parcels'},
             { id: 'tracts-pctCostBurdenedOwners', source: 'tracts' },
             { id: 'tracts-pctHH', source: 'tracts' },
             { id: 'tracts-layer', source: 'tracts' }
