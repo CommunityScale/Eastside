@@ -344,6 +344,19 @@
                 '#79a8f2',
                 communityScaleGray
             ]
+
+    const resiUseCodes = [
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+            ]
  
     const landUseColor = [
                     ['11', landUsePalette[0]],
@@ -410,8 +423,6 @@
             data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/marionCountyTracts.geojson",
             promoteId: "GEOID"
         })
-   
-        //Add sources!!: update tracts source with neighborhood conditions + risk displacement 
 
         map.addSource("parcels", {    
             type: "geojson",
@@ -771,10 +782,10 @@
                     0.95,
                     0.7 //higher opacity value? So that values stick out??
             ]]
-             },
-             layout: {
+            },
+            layout: {
                 visibility: "none"
-             }
+            }
         },"road-label", 
         "settlement-major-label", 
         "settlement-subdivision-label", 
@@ -809,25 +820,6 @@
                 visibility: "none"
              }
         }
-    ) 
-
-    map.addLayer({ 
-            id: "parcels-vacantResi",  //figure out how to add this with the change of layers?? Or toggle on/off
-            type: "line",
-            source: "parcels",
-            paint: {
-                "line-color": ["case",
-                    ["==", ["get", "vacantRes"], 1], "#f5bc20"],
-                "line-width": 2,
-                "line-opacity": 0.8
-             },
-             layout: {
-                visibility: "none"
-             }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
     ) 
 
     map.addLayer({
@@ -1001,15 +993,14 @@
             .addTo(map);
     }});
 
-    map.on('click', (e) => { //risk displacement pop-up
+    map.on('click', (e) => { 
         const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["parcels-riskDisplacement"]
         });
 
         if (selectedGeo) {
-            const pctLandValue = selectedGeo.properties.pctLV;
-            const roundedPctLV = Math.round(pctLandValue * 1000) / 10
-            const displayPctLV = pctLandValue === null || pctLandValue === undefined ? 'No available data' : ` Land value accounts for ${roundedPctLV}% of Parcel #${selectedGeo.properties.PARCEL_C}'s total assessed value.`;
+            const rds = selectedGeo.properties.rd_mm_3;
+            const displayRds = rds === null || rds === undefined ? 'No available.' : `Risk displacement score for Parcel #${selectedGeo.properties.PARCEL_C}: ${rds}/1.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -1017,13 +1008,13 @@
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
                 <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
-                <div class="mapboxgl-popup-content">${displayPctLV}
+                <div class="mapboxgl-popup-content">${displayRds}
                 </div>
             </div>`)
             .addTo(map);
     }});
 
-    map.on('click', (e) => { //ownership pop-up
+    map.on('click', (e) => { 
         const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["parcels-ownership"]
         });
@@ -1037,14 +1028,14 @@
             2 : `Parcel #${selectedGeo.properties.PARCEL_C} took an Over 65 tax credit in 2024. Land value for this parcel exceeds 10% of 2024 total assessed value.`,
             3 : `Parcel #${selectedGeo.properties.PARCEL_C} took a Homestead tax credit in 2024.`,
             4 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned and classed for residential use.`,
-            5 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned is residential use and classed 'EXEMPT' or 'COMMERCIAL.'`
+            5 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned for residential use and classed 'EXEMPT' or 'COMMERCIAL.'`
             };
 
             const displayResi = resiText[residenceCode]|| `Neither classed nor zoned for residential use.`;
             const displayVal = `Assessed parcel value: $${assessedVal.toLocaleString()} (2024). `
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
-            .setLngLat(e.lngLat) //selectedGeo.geometry.coordinates[0][0]
+            .setLngLat(e.lngLat) 
             .setHTML(`
                 <div class="mapboxgl-popup">
                 <div class="mapboxgl-popup-close-button">x</div>
