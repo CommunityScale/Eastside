@@ -139,7 +139,8 @@
             <option value="tracts-pctHH">Percent Change in Households (2010-2023)</option>
             <option value="parcels-landuse">Land Use by Parcel</option> 
             <option value="parcels-pctLV">Land Value as Percent of Assessed Value</option>
-            <option value="parcels-riskDisplacement">Risk of Displacement</option>
+            <option value="parcels-riskDisplacementAge">Risk of Displacement - Age</option>
+            <option value="parcels-riskDisplacementRace">Risk of Displacement - Race & Ethnicity</option>
             <option value="parcels-ownership">Ownership Dynamics</option>
             <option value="tracts-layer">Marion County</option>
         </select>
@@ -194,7 +195,7 @@
         <div id="landUseLegend" class="legend" style="display: none;"> 
             <h4>Land Use</h4>
             <div><span style="background-color: #fff8bf"></span>Low density residential</div>
-            <div><span style="background-color: #ffd489"></span>Middle density residential</div>
+            <div><span style="background-color: #ffd489"></span>Mid. density residential</div>
             <div><span style="background-color: #ffa734"></span>High density residential</div>
             <div><span style="background-color: #da6262"></span>Commercial</div>
             <div><span style="background-color: #b560bb"></span>Mixed use</div>
@@ -297,7 +298,7 @@
                 "#909191", //Right of way
                 "#5d5e5e", //Airport
                 "#282929", //Parking
-                "f3762a", //Under development
+                "#f3762a", //Under development
                 "#fff" //Vacant + unknown
             ]
 
@@ -359,45 +360,48 @@
             ]
  
     const landUseColor = [
-                    ['11', landUsePalette[0]],
-                    ['12', landUsePalette[0]],
-                    ['13', landUsePalette[0]],
-                    ['14', landUsePalette[0]],
-                    ['15', landUsePalette[0]],
-                    ['16', landUsePalette[1]],
-                    ['17', landUsePalette[1]],
-                    ['18', landUsePalette[1]],
-                    ['19', landUsePalette[2]],
-                    ['20', landUsePalette[2]],
-                    ['21', landUsePalette[4]],
-                    ['22', landUsePalette[4]],
-                    ['23', landUsePalette[4]],
-                    ['24', landUsePalette[7]],
-                    ['25', landUsePalette[7]],
-                    ['26', landUsePalette[20]], 
-                    ['30', landUsePalette[22]], 
-                    ['31', landUsePalette[14]], 
-                    ['41', landUsePalette[9]],
-                    ['42', landUsePalette[10]],
-                    ['51', landUsePalette[12]],
-                    ['52', landUsePalette[12]],
-                    ['53', landUsePalette[12]],
-                    ['54', landUsePalette[12]],
-                    ['55', landUsePalette[8]],
-                    ['56', landUsePalette[12]],
-                    ['57', landUsePalette[18]],
-                    ['58', landUsePalette[18]],
-                    ['60', landUsePalette[15]],
-                    ['61', landUsePalette[15]],
-                    ['70', landUsePalette[16]],
-                    ['71', landUsePalette[17]],
-                    ['80', landUsePalette[22]],
-                    ['81', landUsePalette[21]],
-                    ['91', landUsePalette[20]],
-                    ['92', landUsePalette[20]],
-                    ['93', landUsePalette[19]],
-                    [null, communityScaleGray]
+                    [11, landUsePalette[0]],
+                    [12, landUsePalette[0]],
+                    [13, landUsePalette[0]],
+                    [14, landUsePalette[0]],
+                    [15, landUsePalette[0]],
+                    [16, landUsePalette[1]],
+                    [17, landUsePalette[1]],
+                    [18, landUsePalette[1]],
+                    [19, landUsePalette[2]],
+                    [20, landUsePalette[2]],
+                    [21, landUsePalette[4]],
+                    [22, landUsePalette[4]],
+                    [23, landUsePalette[4]],
+                    [24, landUsePalette[7]],
+                    [25, landUsePalette[7]],
+                    [26, landUsePalette[20]], 
+                    [30, landUsePalette[22]], 
+                    [31, landUsePalette[14]], 
+                    [41, landUsePalette[9]],
+                    [42, landUsePalette[10]],
+                    [51, landUsePalette[12]],
+                    [52, landUsePalette[12]],
+                    [53, landUsePalette[12]],
+                    [54, landUsePalette[12]],
+                    [55, landUsePalette[8]],
+                    [56, landUsePalette[12]],
+                    [57, landUsePalette[18]],
+                    [58, landUsePalette[18]],
+                    [60, landUsePalette[15]],
+                    [61, landUsePalette[15]],
+                    [70, landUsePalette[16]],
+                    [71, landUsePalette[17]],
+                    [80, landUsePalette[22]],
+                    [81, landUsePalette[21]],
+                    [91, landUsePalette[20]],
+                    [92, landUsePalette[20]],
+                    [93, landUsePalette[19]]
                 ]
+
+    const landUseMatchExp = ['match', ['get', 'USE14_CODE'], ...landUseColor.flatMap(([code, color]) => [code, color]), 
+        communityScaleGray ];
+
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZW10em90MDEiLCJhIjoiY20zZ2kyd3RpMDRnajJscHoyMG5neGJldyJ9.poXi4pgd2CoXKV2B4kg1Cw ';
     const map = new mapboxgl.Map({
@@ -423,10 +427,11 @@
             data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/marionCountyTracts.geojson",
             promoteId: "GEOID"
         })
+   
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/emzb_parcels.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/eastside_parcels.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -665,35 +670,7 @@
             type: "fill",
             source: "parcels",
             paint: {
-                "fill-color": [
-                    "match",
-                    ["to-string", ["get", "USE14_CODE"]],
-                        "11", landUsePalette[0], 
-                        "12", landUsePalette[0],
-                        '13', landUsePalette[0], 
-                        '14', landUsePalette[0], 
-                        '15', landUsePalette[0], 
-                        '16', landUsePalette[1], 
-                        '17', landUsePalette[1], 
-                        '18', landUsePalette[1], 
-                        '19', landUsePalette[2], 
-                        '20', landUsePalette[2], 
-                        '21', landUsePalette[4],
-                        '22', landUsePalette[4],
-                        '23', landUsePalette[4],
-                        '24', landUsePalette[7],
-                        '25', landUsePalette[7],
-                        '26', landUsePalette[20], 
-                        '30', landUsePalette[22], 
-                        '31', landUsePalette[14], 
-                        '41', landUsePalette[9],
-                        '42', landUsePalette[10],
-                        '51', landUsePalette[12],
-                        '52', landUsePalette[12],
-                        '53', landUsePalette[12],
-                        '54', landUsePalette[12],
-                        communityScaleGray
-                        ],
+                "fill-color": landUseMatchExp, 
                 "fill-outline-color": "white",
                 "fill-opacity": [
                     "case", ["==", ["get", "USE14_CODE"], null], 0.3,
@@ -711,6 +688,7 @@
         "settlement-subdivision-label", 
         "settlement-minor-label"
     ) 
+
 
     map.addLayer({ 
             id: "parcels-pctLV",  
@@ -751,7 +729,7 @@
     ) 
 
     map.addLayer({ 
-            id: "parcels-riskDisplacement",  
+            id: "parcels-riskDisplacementAge",  //change breaks!!
             type: "fill",
             source: "parcels",
             paint: {
@@ -759,7 +737,7 @@
                     "case", ["==", ["get", "residential"], null], communityScaleGray,
                     ["interpolate", 
                     ["linear"],
-                    ["get", "rd_mm_3"],
+                    ["get", "rd_age_mm1"],
                     0.1,
                     riskDisplacementPalette[0], 
                     0.3,
@@ -780,7 +758,49 @@
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.7 //higher opacity value? So that values stick out??
+                    0.75
+            ]]
+            },
+            layout: {
+                visibility: "none"
+            }
+        },"road-label", 
+        "settlement-major-label", 
+        "settlement-subdivision-label", 
+        "settlement-minor-label"
+    ) 
+
+    map.addLayer({ 
+            id: "parcels-riskDisplacementRace",  //change breaks!!
+            type: "fill",
+            source: "parcels",
+            paint: {
+                "fill-color": [
+                    "case", ["==", ["get", "residential"], null], communityScaleGray,
+                    ["interpolate", 
+                    ["linear"],
+                    ["get", "rd_re_mm1"],
+                    0.1,
+                    riskDisplacementPalette[0], 
+                    0.3,
+                    riskDisplacementPalette[1],
+                    0.5,
+                    riskDisplacementPalette[2],
+                    0.7,
+                    riskDisplacementPalette[3],
+                    0.90,
+                    riskDisplacementPalette[4]]],
+                "fill-outline-color": [
+                    "case",
+                    ["==", ["get", "vacantRes"], 1], "#fa1b32", 
+                    "#545453"
+                ],
+                "fill-opacity": [
+                    "case", ["==", ["get", "residential"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.75 
             ]]
             },
             layout: {
@@ -845,7 +865,6 @@
     });
 
     window.addEventListener('resize', adjustMapSize);
-
   
     map.on('click', (e) => {
         const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
@@ -854,7 +873,7 @@
 
         if (selectedGeo) {
             const medianIncome = selectedGeo.properties.medIncome;
-            const displayIncome = medianIncome === null || medianIncome === undefined ? 'No available data' : `Annual median household income: $${medianIncome.toLocaleString()} (2023 USD)`;
+            const displayIncome = medianIncome === null || medianIncome === undefined ? 'No available data.' : `Annual median household income: $${medianIncome.toLocaleString()} (2023 USD)`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -876,7 +895,7 @@
         if (selectedGeo) {
             const incomeChange = selectedGeo.properties.pctChInfIn;
             const roundedPctIncomeCh = Math.round(incomeChange * 1000) / 10
-            const displayPctIncomeCh = incomeChange === null || incomeChange === undefined ? 'No available data' : `${selectedGeo.properties.NAME} saw a ${roundedPctIncomeCh}% change in median annual household income (2015-2023).`;
+            const displayPctIncomeCh = incomeChange === null || incomeChange === undefined ? 'No available data.' : `${selectedGeo.properties.NAME} saw a ${roundedPctIncomeCh}% change in median annual household income (2015-2023).`;
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
             .setHTML(`
@@ -913,7 +932,7 @@
         if (selectedGeo) {
             const pctRent30 = selectedGeo.properties.cbRent;
             const roundedPctRent30 = Math.round(pctRent30 * 1000) / 10
-            const displayPctRent30 = pctRent30 === null || pctRent30 === undefined ? 'No available data' : `${roundedPctRent30}% of renters in ${selectedGeo.properties.NAME} spend more than 30% of income on housing costs.`;
+            const displayPctRent30 = pctRent30 === null || pctRent30 === undefined ? 'No available data.' : `${roundedPctRent30}% of renters in ${selectedGeo.properties.NAME} spend more than 30% of income on housing costs.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -935,7 +954,7 @@
         if (selectedGeo) {
             const pctOwned30 = selectedGeo.properties.cbOwn;
             const roundedPctOwned30 = Math.round(pctOwned30 * 1000) / 10
-            const displayPctOwned30 = pctOwned30 === null || pctOwned30 === undefined ? 'No available data' : `${roundedPctOwned30}% of homeowners in ${selectedGeo.properties.NAME} spend more than 30% of income on housing costs.`;
+            const displayPctOwned30 = pctOwned30 === null || pctOwned30 === undefined ? 'No available data.' : `${roundedPctOwned30}% of homeowners in ${selectedGeo.properties.NAME} spend more than 30% of income on housing costs.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -957,7 +976,7 @@
         if (selectedGeo) {
             const pctChangeHH = selectedGeo.properties.pctChHH;
             const roundedPctChangeHH = Math.round(pctChangeHH * 1000) / 10
-            const displayPctChangeHH = pctChangeHH === null || pctChangeHH === undefined ? 'No available data' : `${selectedGeo.properties.NAME} saw a ${roundedPctChangeHH}% change in the number of households (2010-2023).`;
+            const displayPctChangeHH = pctChangeHH === null || pctChangeHH === undefined ? 'No available data.' : `${selectedGeo.properties.NAME} saw a ${roundedPctChangeHH}% change in the number of households (2010-2023).`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -972,6 +991,27 @@
     }});
 
     map.on('click', (e) => {
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {       //change to pop-up for land use!!        
+            layers: ["parcels-landuse"]
+        });
+
+        if (selectedGeo) {
+            const use = selectedGeo.properties.USE14_LABE;
+            const displayPctLV = use === null || use === undefined ? 'No description available.' : `Use description: ${use}.`;
+
+            new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
+            .setHTML(`
+                <div class="mapboxgl-popup">
+                <div class="mapboxgl-popup-close-button">x</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
+                <div class="mapboxgl-popup-content">${displayPctLV}
+                </div>
+            </div>`)
+            .addTo(map);
+    }});
+
+    map.on('click', (e) => {
         const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
             layers: ["parcels-pctLV"]
         });
@@ -979,7 +1019,7 @@
         if (selectedGeo) {
             const pctLandValue = selectedGeo.properties.pctLV;
             const roundedPctLV = Math.round(pctLandValue * 1000) / 10
-            const displayPctLV = pctLandValue === null || pctLandValue === undefined ? 'No available data' : ` Land value accounts for ${roundedPctLV}% of Parcel #${selectedGeo.properties.PARCEL_C}'s total assessed value.`;
+            const displayPctLV = pctLandValue === null || pctLandValue === undefined ? 'No available data.' : ` Land value accounts for ${roundedPctLV}% of Parcel #${selectedGeo.properties.PARCEL_C}'s total assessed value.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -995,12 +1035,33 @@
 
     map.on('click', (e) => { 
         const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
-            layers: ["parcels-riskDisplacement"]
+            layers: ["parcels-riskDisplacementAge"]
         });
 
         if (selectedGeo) {
             const rds = selectedGeo.properties.rd_mm_3;
-            const displayRds = rds === null || rds === undefined ? 'No available.' : `Risk displacement score for Parcel #${selectedGeo.properties.PARCEL_C}: ${rds}/1.`;
+            const displayRds = rds === null || rds === undefined ? 'Not available.' : `Risk displacement score, with respect to area trends in age of householder, for Parcel #${selectedGeo.properties.PARCEL_C}: ${rds}/1.`;
+
+            new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
+            .setHTML(`
+                <div class="mapboxgl-popup">
+                <div class="mapboxgl-popup-close-button">x</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
+                <div class="mapboxgl-popup-content">${displayRds}
+                </div>
+            </div>`)
+            .addTo(map);
+    }});
+
+    map.on('click', (e) => { 
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
+            layers: ["parcels-riskDisplacementRace"]
+        });
+
+        if (selectedGeo) {
+            const rds = selectedGeo.properties.rd_mm_3;
+            const displayRds = rds === null || rds === undefined ? 'Not available.' : `Risk displacement score, with respect to area trends of concentrations of racial and ethnic minorities, for Parcel #${selectedGeo.properties.PARCEL_C}: ${rds}/1.`; //is the verbiage appropriate??
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
             .setLngLat(selectedGeo.geometry.coordinates[0][0])
@@ -1022,6 +1083,7 @@
         if (selectedGeo) {
             const residenceCode = selectedGeo.properties.seniorResi;
             const assessedVal = selectedGeo.properties.assessedVal;
+            const homesteadCr = selectedGeo.properties.Homestead_Sum;
 
             const resiText = {
             1 : `Parcel #${selectedGeo.properties.PARCEL_C} took both a Homestead and an Over 65 tax credit in 2024.`,
@@ -1030,6 +1092,8 @@
             4 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned and classed for residential use.`,
             5 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned for residential use and classed 'EXEMPT' or 'COMMERCIAL.'`
             };
+
+            //const homesteadText = {}
 
             const displayResi = resiText[residenceCode]|| `Neither classed nor zoned for residential use.`;
             const displayVal = `Assessed parcel value: $${assessedVal.toLocaleString()} (2024). `
@@ -1052,7 +1116,8 @@
             'tracts-pctCostBurdenedRenters',
             'parcels-landuse',
             'parcels-pctLV',
-            'parcels-riskDisplacement',
+            'parcels-riskDisplacementAge',
+            'parcels-riskDisplacementRace',
             'tracts-pctCostBurdenedOwners',
             'parcels-ownership',
             'tracts-pctHH',
@@ -1096,9 +1161,11 @@
         document.getElementById('pctHHLegend').style.display = 'block';
         }   else if (selectedLayer === 'parcels-landuse') {
         document.getElementById('landUseLegend').style.display = 'block';
-        }   else if (selectedLayer === 'parcels-riskDisplacement') {
+        }   else if (selectedLayer === 'parcels-riskDisplacementAge') {
         document.getElementById('rdLegend').style.display = 'block';
-        }   else if (selectedLayer === 'parcels-ownership') {
+        }   else if (selectedLayer === 'parcels-riskDisplacementRace') {
+        document.getElementById('rdLegend').style.display = 'block';
+        } else if (selectedLayer === 'parcels-ownership') {
         document.getElementById('ownershipLegend').style.display = 'block';
         } else if (selectedLayer === 'parcels-pctLV') {
         document.getElementById('pctLVLegend').style.display = 'block';
@@ -1112,7 +1179,9 @@
             { id: 'tracts-pctChIncome', source: 'tracts'},
             { id: 'tracts-pctCostBurdenedRenters', source: 'tracts'},
             { id: 'parcels-pctLV', source: 'parcels' },
-            { id: 'parcels-riskDisplacement', source: 'parcels' },
+            { id: 'parcels-riskDisplacementAge', source: 'parcels' },
+            { id: 'parcels-riskDisplacementRace', source: 'parcels' },
+            { id: 'parcels-landuse', source: 'parcels'},
             { id: 'parcels-ownership', source: 'parcels'},
             { id: 'tracts-pctCostBurdenedOwners', source: 'tracts' },
             { id: 'tracts-pctHH', source: 'tracts' },
