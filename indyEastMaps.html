@@ -90,7 +90,7 @@
             font-size: 14px;
             display: flex;
             flex-shrink: 1;
-            border-radius: 2;
+            border-radius: 4px;
             opacity: 0.95;
             border: #80808090;
         }
@@ -141,9 +141,21 @@
             <option value="parcels-pctLV">Land Value as Percent of Assessed Value</option>
             <option value="parcels-riskDisplacementAge">Risk of Displacement - Age</option>
             <option value="parcels-riskDisplacementRace">Risk of Displacement - Race & Ethnicity</option>
-            <option value="parcels-ownership">Ownership Dynamics</option>
+            <option value="parcels-unitAge">Construction Year</option>
+            <option value="parcels-ownership">Property Tax Exemptions</option>
             <option value="tracts-layer">Marion County</option>
         </select>
+        <div id="opacity-control" style="position: absolute; top: 75px; left: 30px; z-index: 10; background: #f2f0ef; padding: 8px; border-radius: 4px; font-family: Roboto, sans-serif; font-size: 14px;">
+            <label for="opacitySlider">Layer Opacity:</label>
+            <input type="range" id="opacitySlider" min="0" max="1" step="0.05" value="0.6">
+        </div>
+        <div id="basemap-toggle" style="position: absolute; top: 120px; left: 30px; z-index: 10; background: #f2f0ef; padding: 8px; border-radius: 4px; font-family: Roboto, sans-serif; font-size: 14px;">
+          <label for="basemapStyle">Basemap:</label>
+          <select id="basemapStyle">
+              <option value="gray">Gray</option>
+              <option value="satellite">Satellite</option>
+          </select>
+      </div>
         <div id="medIncomeLegend" class="legend" style="display: block;">
             <h4>Median Annual Household Income (2023, USD)</h4>
             <div><span style="background-color: #980043"></span>$97,000 or more</div>
@@ -229,13 +241,22 @@
             <div><span style="background-color: #b3cde3"></span></div>
             <div><span style="background-color: #edf8fb"></span>Least risk</div>
         </div>
+        <div id="unitAgeLegend" class="legend" style="display: none;">
+            <h4>Construction Year</h4>
+            <div><span style="background-color: #82ac22"></span>2000 or after</div>
+            <div><span style="background-color: #cddea8"></span>1975-2000</div>
+            <div><span style="background-color: #9db1f7"></span>1950-1975</div>
+            <div><span style="background-color: #8795f3"></span>1925-1950</div>
+            <div><span style="background-color: #5b66d0"></span>1900-1925</div>
+            <div><span style="background-color: #3643b8"></span>1900 or before</div>
+            <div><span style="background-color: #425A7030"></span>No data</div>
+        </div>
         <div id="ownershipLegend" class="legend" style="display: none;">
-            <h4>Homeownership Dynamics</h4> 
+            <h4>Property Tax Exemptions</h4> 
             <div><span style="background-color: #f2e22c"></span>Over 65 deduction</div>
-            <div><span style="background-color: #fa2173"></span>Over 65 deduction & high percent land value</div>
             <div><span style="background-color: #559428"></span>Homestead deduction</div>
-            <div><span style="background-color: #79a8f2"></span>Classed residential</div>
-            <div><span style="background-color: #425A70"></span>Exempt/other</div>
+            <div><span style="background-color: #79a8f2"></span>No deduction</div>
+            <div><span style="background-color: #425A7050"></span>Exempt/other</div>
             <div><span style="background-color: #425A7030"></span>Not zoned or classed residential </div>
         </div>
     <div id="map"></div>
@@ -343,7 +364,16 @@
                 '#fa2a73',
                 '#559428',
                 '#79a8f2',
-                communityScaleGray
+                '#425A7050'
+            ]
+
+    const unitAgePalette = [ //experimenting with a slightly diverging palette derived from color research, etc, a la SB
+                '#82ac22',
+                '#cddea8',
+                '#9db1f7',
+                '#8795f3',
+                '#5b66d0',
+                '#3643b8',
             ]
 
     const resiUseCodes = [
@@ -404,12 +434,19 @@
 
 
     mapboxgl.accessToken = 'pk.eyJ1IjoiZW10em90MDEiLCJhIjoiY20zZ2kyd3RpMDRnajJscHoyMG5neGJldyJ9.poXi4pgd2CoXKV2B4kg1Cw ';
-    const map = new mapboxgl.Map({
-        container: 'map', 
-        style: 'mapbox://styles/emtzot01/cm6a8mjb5004g01qrd7cv07mq', 
-        center: INITIAL_LOC, 
-        zoom: INITIAL_ZOOM 
-    });
+    let map;
+    const BASEMAP_STYLES = {
+      gray: 'mapbox://styles/emtzot01/cm6a8mjb5004g01qrd7cv07mq',
+      satellite: 'mapbox://styles/mapbox/satellite-streets-v12'
+    };
+
+    function initializeMap(styleKey = 'gray') {
+      map = new mapboxgl.Map({
+        container: 'map',
+        style: BASEMAP_STYLES[styleKey],
+        center: INITIAL_LOC,
+        zoom: INITIAL_ZOOM
+      });
 
     function adjustMapSize() {
         const sidebarWidth = document.getElementById('sidebar').width;
@@ -431,7 +468,7 @@
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/eastside_parcels.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/eastside_indy_parcels.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -748,17 +785,12 @@
                     riskDisplacementPalette[3],
                     0.90,
                     riskDisplacementPalette[4]]],
-                "fill-outline-color": [
-                    "case",
-                    ["==", ["get", "vacantRes"], 1], "#fa1b32", 
-                    "#545453"
-                ],
                 "fill-opacity": [
                     "case", ["==", ["get", "residential"], null], 0.3,
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.75
+                    0.7 //higher opacity value? So that values stick out??
             ]]
             },
             layout: {
@@ -790,17 +822,12 @@
                     riskDisplacementPalette[3],
                     0.90,
                     riskDisplacementPalette[4]]],
-                "fill-outline-color": [
-                    "case",
-                    ["==", ["get", "vacantRes"], 1], "#fa1b32", 
-                    "#545453"
-                ],
                 "fill-opacity": [
                     "case", ["==", ["get", "residential"], null], 0.3,
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.75 
+                    0.7 //higher opacity value? So that values stick out??
             ]]
             },
             layout: {
@@ -821,11 +848,11 @@
                     "match",
                     ["get", "seniorResi"],
                         1, ownershipPalette[0], 
-                        2, ownershipPalette[1],
+                        2, ownershipPalette[0],
                         3, ownershipPalette[2], 
                         4, ownershipPalette[3],
                         5, communityScaleGray,
-                        communityScaleGray
+                        communityScaleGray //change no data default color
                         ],
                 "fill-outline-color": "#545453",
                 "fill-opacity": [
@@ -841,6 +868,38 @@
              }
         }
     ) 
+
+    map.addLayer({ 
+            id: "parcels-unitAge",  
+            type: "fill",
+            source: "parcels",
+            paint: {
+                "fill-color": [
+                    "match",
+                    ["get", "stockAge"],
+                        "2000 or after", unitAgePalette[0], 
+                        "1975-2000", unitAgePalette[1],
+                        "1950-1975", unitAgePalette[2], 
+                        "1925-1950", unitAgePalette[3],
+                        "1900-1925", unitAgePalette[4],
+                        "1900 or before", unitAgePalette[5],
+                        communityScaleGray //change no data default
+                        ],
+                "fill-outline-color": "#545453",
+                "fill-opacity": [
+                    "case", ["==", ["get", "stockAge"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.6
+            ]]
+             },
+             layout: {
+                visibility: "none"
+             }
+        }
+    ) 
+
 
     map.addLayer({
             id: "emzb-outline-layer",  
@@ -1039,7 +1098,7 @@
         });
 
         if (selectedGeo) {
-            const rds = selectedGeo.properties.rd_mm_3;
+            const rds = selectedGeo.properties.rd_age_mm1;
             const displayRds = rds === null || rds === undefined ? 'Not available.' : `Risk displacement score, with respect to area trends in age of householder, for Parcel #${selectedGeo.properties.PARCEL_C}: ${rds}/1.`;
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
@@ -1060,7 +1119,7 @@
         });
 
         if (selectedGeo) {
-            const rds = selectedGeo.properties.rd_mm_3;
+            const rds = selectedGeo.properties.rd_re_mm1;
             const displayRds = rds === null || rds === undefined ? 'Not available.' : `Risk displacement score, with respect to area trends of concentrations of racial and ethnic minorities, for Parcel #${selectedGeo.properties.PARCEL_C}: ${rds}/1.`; //is the verbiage appropriate??
 
             new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
@@ -1070,6 +1129,27 @@
                 <div class="mapboxgl-popup-close-button">x</div>
                 <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
                 <div class="mapboxgl-popup-content">${displayRds}
+                </div>
+            </div>`)
+            .addTo(map);
+    }});
+
+    map.on('click', (e) => { 
+        const [selectedGeo] = map.queryRenderedFeatures(e.point, {               
+            layers: ["parcels-unitAge"]
+        });
+
+        if (selectedGeo) {
+            const yearBuilt = selectedGeo.properties.yearC;
+            const displayBuilt = yearBuilt === null || yearBuilt === undefined ? 'Not available.' : `The unit on this parcel was built in ${yearBuilt}.`;
+
+            new mapboxgl.Popup({ closeButton: true }, { clickToClose: true })
+            .setLngLat(selectedGeo.geometry.coordinates[0][0])
+            .setHTML(`
+                <div class="mapboxgl-popup">
+                <div class="mapboxgl-popup-close-button">x</div>
+                <div class="mapboxgl-popup-header">${selectedGeo.properties.Full_Address_1}</div>
+                <div class="mapboxgl-popup-content">${displayBuilt}
                 </div>
             </div>`)
             .addTo(map);
@@ -1093,7 +1173,6 @@
             5 : `Parcel #${selectedGeo.properties.PARCEL_C} took neither a Homestead nor an Over 65 tax credit in 2024. The parcel is zoned for residential use and classed 'EXEMPT' or 'COMMERCIAL.'`
             };
 
-            //const homesteadText = {}
 
             const displayResi = resiText[residenceCode]|| `Neither classed nor zoned for residential use.`;
             const displayVal = `Assessed parcel value: $${assessedVal.toLocaleString()} (2024). `
@@ -1116,6 +1195,7 @@
             'tracts-pctCostBurdenedRenters',
             'parcels-landuse',
             'parcels-pctLV',
+            'parcels-unitAge',
             'parcels-riskDisplacementAge',
             'parcels-riskDisplacementRace',
             'tracts-pctCostBurdenedOwners',
@@ -1125,6 +1205,25 @@
         ]
 
     const dropdown = document.getElementById('layer-dropdown');
+
+    document.getElementById("opacitySlider").addEventListener("input", function (e) {
+        const newOpacity = parseFloat(e.target.value);
+        dataLayers.forEach(layerId => {
+        map.setPaintProperty(layerId, "fill-opacity", newOpacity);
+        });
+    });
+
+    document.getElementById("basemapStyle").addEventListener("change", function (e) {
+    const newStyle = e.target.value;
+    const center = map.getCenter();
+    const zoom = map.getZoom();
+        map.remove();
+        initializeMap(newStyle);
+        setTimeout(() => {
+            map.setCenter(center);
+            map.setZoom(zoom);
+        }, 500);
+    });
 
     dropdown.addEventListener('change', function() {
         const selectedLayer = dropdown.value;
@@ -1167,7 +1266,9 @@
         document.getElementById('rdLegend').style.display = 'block';
         } else if (selectedLayer === 'parcels-ownership') {
         document.getElementById('ownershipLegend').style.display = 'block';
-        } else if (selectedLayer === 'parcels-pctLV') {
+        } else if (selectedLayer === 'parcels-unitAge') {
+        document.getElementById('unitAgeLegend').style.display = 'block';
+        }else if (selectedLayer === 'parcels-pctLV') {
         document.getElementById('pctLVLegend').style.display = 'block';
         }});
 
@@ -1185,7 +1286,8 @@
             { id: 'parcels-ownership', source: 'parcels'},
             { id: 'tracts-pctCostBurdenedOwners', source: 'tracts' },
             { id: 'tracts-pctHH', source: 'tracts' },
-            { id: 'tracts-layer', source: 'tracts' }
+            { id: 'tracts-layer', source: 'tracts' },
+            { id: 'parcels-unitAge', source: 'parcels'}
         ];
 
         hoverLayers.forEach(({ id, source }) => {
@@ -1214,7 +1316,9 @@
                 }
                 hoveredGeoId = null;
             });
-        });
+        })};
+
+        initializeMap();
 
         </script>
     </body>
