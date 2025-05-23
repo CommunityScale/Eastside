@@ -1,7 +1,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>Indy East Draft</title>
+        <title>Indy East maps</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <link
@@ -391,7 +391,7 @@
                 '#425A7050'
             ]
 
-    const unitAgePalette = [ //experimenting with a slightly diverging palette derived from color research, etc, a la SB
+    const unitAgePalette = [ 
                 '#82ac22',
                 '#cddea8',
                 '#9db1f7',
@@ -488,6 +488,8 @@
             data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/marionCounty_tracts.geojson",
             promoteId: "GEOID"
         })
+   
+        //Add sources!!: update tracts source with neighborhood conditions + risk displacement 
 
         map.addSource("parcels", {    
             type: "geojson",
@@ -848,7 +850,7 @@
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.7 
+                    0.7 //higher opacity value? So that values stick out??
             ]]
             },
             layout: {
@@ -861,7 +863,7 @@
     ) 
 
     map.addLayer({ 
-            id: "parcels-riskDisplacementRace",  
+            id: "parcels-riskDisplacementRace",  //change breaks!!
             type: "fill",
             source: "parcels",
             paint: {
@@ -978,7 +980,13 @@
              layout: {
                 visibility: "none"
              },
-            filter: ["==", ["to-number", ["get", "USE14_CODE"]], 30]
+            filter: [
+                "all",
+                ["has", "pctLV"],
+                [">", ["to-number", ["get", "pctLV"]], 0.5],
+                ["has", "vacantRes"],
+                ["==", ["to-number", ["get", "vacantRes"]], 1]
+            ]
         },"road-label", 
         "settlement-major-label", 
         "settlement-subdivision-label", 
