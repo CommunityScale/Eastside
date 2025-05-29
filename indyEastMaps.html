@@ -850,7 +850,7 @@
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.7 //higher opacity value? So that values stick out??
+                    0.7 
             ]]
             },
             layout: {
@@ -863,7 +863,7 @@
     ) 
 
     map.addLayer({ 
-            id: "parcels-riskDisplacementRace",  //change breaks!!
+            id: "parcels-riskDisplacementRace", 
             type: "fill",
             source: "parcels",
             paint: {
@@ -887,7 +887,7 @@
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.7 //higher opacity value? So that values stick out??
+                    0.7 
             ]]
             },
             layout: {
@@ -911,8 +911,8 @@
                         2, taxCreditsPalette[0],
                         3, taxCreditsPalette[2], 
                         4, taxCreditsPalette[3],
-                        5, communityScaleGray, //change
-                        communityScaleGray  //change
+                        5, communityScaleGray, 
+                        communityScaleGray  
                         ],
                 "fill-outline-color": "#545453",
                 "fill-opacity": [
@@ -929,38 +929,7 @@
         }
     ) 
 
-    map.addLayer({ 
-            id: "parcels-unitAge",  
-            type: "fill",
-            source: "parcels",
-            paint: {
-                "fill-color": [
-                    "match",
-                    ["get", "stockAge"],
-                        "2000 or after", unitAgePalette[0], 
-                        "1975-2000", unitAgePalette[1],
-                        "1950-1975", unitAgePalette[2], 
-                        "1925-1950", unitAgePalette[3],
-                        "1900-1925", unitAgePalette[4],
-                        "1900 or before", unitAgePalette[5],
-                        communityScaleGray
-                        ],
-                "fill-outline-color": "#545453",
-                "fill-opacity": [
-                    "case", ["==", ["get", "stockAge"], null], 0.3,
-                    ["case",
-                    ["boolean", ["feature-state", "hover"], false],
-                    0.95,
-                    0.6
-            ]]
-             },
-             layout: {
-                visibility: "none"
-             }
-        }
-    ) 
-
-    map.addLayer({          //change
+    map.addLayer({        
             id: "parcels-vacancy",  
             type: "line",
             source: "parcels",
@@ -1045,6 +1014,37 @@
         "settlement-major-label", 
         "settlement-subdivision-label", 
         "settlement-minor-label"
+    ) 
+
+    map.addLayer({ 
+            id: "parcels-unitAge",  
+            type: "fill",
+            source: "parcels",
+            paint: {
+                "fill-color": [
+                    "match",
+                    ["get", "stockAge"],
+                        "2000 or after", unitAgePalette[0], 
+                        "1975-2000", unitAgePalette[1],
+                        "1950-1975", unitAgePalette[2], 
+                        "1925-1950", unitAgePalette[3],
+                        "1900-1925", unitAgePalette[4],
+                        "1900 or before", unitAgePalette[5],
+                        communityScaleGray
+                        ],
+                "fill-outline-color": "#545453",
+                "fill-opacity": [
+                    "case", ["==", ["get", "stockAge"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.6
+            ]]
+             },
+             layout: {
+                visibility: "none"
+             }
+        }
     ) 
 
     map.addLayer({
