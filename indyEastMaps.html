@@ -482,14 +482,12 @@
 
 
 
-    map.on("load", () => {      
+     map.on("load", () => {      
         map.addSource("tracts", {    
             type: "geojson",
             data: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/marionCounty_tracts.geojson",
             promoteId: "GEOID"
         })
-   
-        //Add sources!!: update tracts source with neighborhood conditions + risk displacement 
 
         map.addSource("parcels", {    
             type: "geojson",
@@ -501,6 +499,7 @@
             type: "geojson",
             data: "https://raw.githubusercontent.com/emtzot/mapSources/refs/heads/main/indyEastEMZB.geojson"
         })
+
 
         map.addLayer({
                 id: "tracts-layer",  
@@ -520,10 +519,7 @@
                 layout: {
                     visibility: "none"
                 }
-            },"road-label", 
-            "settlement-major-label", 
-            "settlement-subdivision-label", 
-            "settlement-minor-label"
+            }
         )
 
         map.addLayer({
@@ -558,10 +554,7 @@
              layout: {
                 visibility: "visible"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     ) 
 
     map.addLayer({
@@ -599,10 +592,7 @@
              layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     )
 
     map.addLayer({      
@@ -637,10 +627,7 @@
              layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     )
     
 
@@ -677,10 +664,7 @@
              layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     )
 
 
@@ -721,10 +705,7 @@
              layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     )
 
     map.addLayer({
@@ -755,10 +736,7 @@
             layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     ) 
 
 
@@ -780,10 +758,7 @@
              layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     ) 
 
 
@@ -819,10 +794,7 @@
              layout: {
                 visibility: "none"
              }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     ) 
 
     map.addLayer({ 
@@ -850,20 +822,17 @@
                     ["case",
                     ["boolean", ["feature-state", "hover"], false],
                     0.95,
-                    0.7 
+                    0.7 //higher opacity value? So that values stick out??
             ]]
             },
             layout: {
                 visibility: "none"
             }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }
     ) 
 
     map.addLayer({ 
-            id: "parcels-riskDisplacementRace", 
+            id: "parcels-riskDisplacementRace",  //change breaks!!
             type: "fill",
             source: "parcels",
             paint: {
@@ -893,127 +862,7 @@
             layout: {
                 visibility: "none"
             }
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
-    ) 
-
-    map.addLayer({ 
-            id: "parcels-taxCredits",  
-            type: "fill",
-            source: "parcels",
-            paint: {
-                "fill-color": [
-                    "match",
-                    ["get", "seniorResi"],
-                        1, taxCreditsPalette[0], 
-                        2, taxCreditsPalette[0],
-                        3, taxCreditsPalette[2], 
-                        4, taxCreditsPalette[3],
-                        5, communityScaleGray, 
-                        communityScaleGray  
-                        ],
-                "fill-outline-color": "#545453",
-                "fill-opacity": [
-                    "case", ["==", ["get", "seniorResi"], null], 0.3,
-                    ["case",
-                    ["boolean", ["feature-state", "hover"], false],
-                    0.95,
-                    0.6
-            ]]
-             },
-             layout: {
-                visibility: "none"
-             }
-        }
-    ) 
-
-    map.addLayer({        
-            id: "parcels-vacancy",  
-            type: "line",
-            source: "parcels",
-            paint: {
-                "line-color": "#eb4034",
-                "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                        10, 2,
-                        13, 4,
-                        16, 6,
-                        18, 8
-                        ],
-                "line-opacity": 0.8
-             },
-             layout: {
-                visibility: "none"
-             },
-            filter: [
-                "all",
-                ["has", "pctLV"],
-                [">", ["to-number", ["get", "pctLV"]], 0.5],
-                ["has", "vacantRes"],
-                ["==", ["to-number", ["get", "vacantRes"]], 1]
-            ]
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
-    ) 
-
-    map.addLayer({         
-            id: "parcels-over65",  
-            type: "line",
-            source: "parcels",
-            paint: {
-                "line-color": taxCreditsPalette[0],
-                "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                        10, 2,
-                        13, 4,
-                        16, 6,
-                        18, 8
-                        ],
-                "line-opacity": 0.8
-             },
-            layout: {
-                visibility: "none"
-             },
-            filter: [">", ["to-number", ["get", "Over_65_Sum"]], 0]
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
-    ) 
-
-    map.addLayer({          
-            id: "parcels-hmst",  
-            type: "line",
-            source: "parcels",
-            paint: {
-                "line-color": taxCreditsPalette[3],
-                "line-width": [
-                    "interpolate",
-                    ["linear"],
-                    ["zoom"],
-                        10, 2,
-                        13, 4,
-                        16, 6,
-                        18, 8
-                        ],
-                "line-opacity": 0.8
-             },
-             layout: {
-                visibility: "none"
-             },
-            filter: [">", ["to-number", ["get", "Homestead_Sum"]], 0]
-        },"road-label", 
-        "settlement-major-label", 
-        "settlement-subdivision-label", 
-        "settlement-minor-label"
+        }, 
     ) 
 
     map.addLayer({ 
@@ -1047,6 +896,122 @@
         }
     ) 
 
+
+    map.addLayer({ 
+            id: "parcels-taxCredits",  
+            type: "fill",
+            source: "parcels",
+            paint: {
+                "fill-color": [
+                    "match",
+                    ["get", "seniorResi"],
+                        1, taxCreditsPalette[0], 
+                        2, taxCreditsPalette[0],
+                        3, taxCreditsPalette[2], 
+                        4, taxCreditsPalette[3],
+                        5, communityScaleGray, 
+                        communityScaleGray  
+                        ],
+                "fill-outline-color": "#545453",
+                "fill-opacity": [
+                    "case", ["==", ["get", "seniorResi"], null], 0.3,
+                    ["case",
+                    ["boolean", ["feature-state", "hover"], false],
+                    0.95,
+                    0.6
+            ]]
+             },
+             layout: {
+                visibility: "none"
+             }
+        }
+    ) 
+
+    map.addLayer({
+            id: "overlay-top-anchor",
+            type: "background",
+            layout: {visibility: "none"}
+        }
+    )
+
+    map.addLayer({          
+            id: "parcels-vacancy",  
+            type: "line",
+            source: "parcels",
+            paint: {
+                "line-color": "#eb4034",
+                "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                        10, 2,
+                        13, 4,
+                        16, 6,
+                        18, 8
+                        ],
+                "line-opacity": 0.8
+             },
+             layout: {
+                visibility: "none"
+             },
+            filter: [
+                "all",
+                ["has", "pctLV"],
+                [">", ["to-number", ["get", "pctLV"]], 0.5],
+                ["has", "vacantRes"],
+                ["==", ["to-number", ["get", "vacantRes"]], 1]
+            ]
+        }, "overlay-top-anchor"
+    ) 
+
+    map.addLayer({         
+            id: "parcels-over65",  
+            type: "line",
+            source: "parcels",
+            paint: {
+                "line-color": taxCreditsPalette[0],
+                "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                        10, 2,
+                        13, 4,
+                        16, 6,
+                        18, 8
+                        ],
+                "line-opacity": 0.8
+             },
+            layout: {
+                visibility: "none"
+             },
+            filter: [">", ["to-number", ["get", "Over_65_Sum"]], 0]
+        }, "overlay-top-anchor"
+    ) 
+
+    map.addLayer({          
+            id: "parcels-hmst",  
+            type: "line",
+            source: "parcels",
+            paint: {
+                "line-color": taxCreditsPalette[3],
+                "line-width": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                        10, 2,
+                        13, 4,
+                        16, 6,
+                        18, 8
+                        ],
+                "line-opacity": 0.8
+             },
+             layout: {
+                visibility: "none"
+             },
+            filter: [">", ["to-number", ["get", "Homestead_Sum"]], 0]
+        }, "overlay-top-anchor"
+    ) 
+
     map.addLayer({
             id: "emzb-outline-layer",  
             type: "line",
@@ -1059,10 +1024,7 @@
             layout: {
                 visibility: "visible"
             }},
-            "road-label", 
-            "settlement-major-label", 
-            "settlement-subdivision-label", 
-            "settlement-minor-label"
+            "overlay-top-anchor"
         )
 
     //defaultView
