@@ -518,7 +518,7 @@ const interpolateLayers = [
             property: "cbRent",
             data_source: "tracts",
             source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/marionCounty_tracts.geojson",
-            colors: sequentialPalette, //replaced with medIncomePalette for color consistency 
+            colors: sequentialPalette, 
             defaultViz: "none"
         },
         {
@@ -526,7 +526,7 @@ const interpolateLayers = [
             property:"cbOwn",
             data_source: "tracts",
             source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/marionCounty_tracts.geojson",
-            colors: sequentialPalette, //replaced with medIncomePalette for color consistency 
+            colors: sequentialPalette, 
             defaultViz: "none"
         },
         {
@@ -534,7 +534,7 @@ const interpolateLayers = [
             property:"pctChHH",
             data_source: "tracts",
             source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/marionCounty_tracts.geojson",
-            colors: changePalette, //maybe replace with simplified diverging color ramp
+            colors: changePalette, 
             defaultViz: "none"
         },
         {
@@ -542,7 +542,7 @@ const interpolateLayers = [
             property:"pctChInfIn",
             data_source: "tracts",
             source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/main/marionCounty_tracts.geojson",
-            colors: changePalette, //maybe replace with simplified diverging color ramp
+            colors: changePalette, 
             defaultViz: "none"
         },
         {
@@ -553,14 +553,22 @@ const interpolateLayers = [
             colors: sequentialPalette,
             defaultViz: "none"
         },
-        // {
-        //     id: "parcels-value",
-        //     property: "acreVal",
-        //     data_source: "parcels",
-        //     source_url: "https://raw.githubusercontent.com/CommunityScale/JohnsonCounty/main/uninc_parcels_jcia.geojson",
-        //     colors: parcelValuePalette,
-        //     defaultViz: "none"
-        // }
+        {
+          id: 'parcels-rdAge',
+          property: "rd_age_comp1_mm",
+          data_source: "parcels",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/32eb6aace44d7ccf7aef423a600960db3377add6/Eastside_UpdatedParcels_Pared_250825.geojson",
+          colors: riskDisplacementPalette,
+          defaultViz: "none"
+        },
+        {
+          id: 'parcels-rdRace',
+          property: "rd_re_comp1_mm",
+          data_source: "parcels",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/32eb6aace44d7ccf7aef423a600960db3377add6/Eastside_UpdatedParcels_Pared_250825.geojson",
+          colors: riskDisplacementPalette,
+          defaultViz: "none"
+        }
     ]
 
 
@@ -686,77 +694,77 @@ const interpolateLayers = [
             }, 
             labelLayerId)
 
-            map.addLayer({      
-            id: "parcels-rdAge",  
-            type: "fill",
-            source: "parcels",
-            paint: {
-                "fill-color": [
-                    "case", ["==", ["get", "rd_age_comp1_mm"], null], 'transparent',
-                    ["interpolate", 
-                    ["linear"],
-                    ["get", "rd_age_comp1_mm"],
-                    0,
-                    riskDisplacementPalette[0], 
-                    0.23,
-                    riskDisplacementPalette[1],
-                    0.46,
-                    riskDisplacementPalette[2],
-                    0.71,
-                    riskDisplacementPalette[3],
-                    0.94,
-                    riskDisplacementPalette[4]]],
-                "fill-outline-color": "white",
-                "fill-opacity": [
-                    "case", ["==", ["get", "rd_age_comp1_mm"], null], 0,
-                    ["case",
-                    ["boolean", ["feature-state", "hover"], false],
-                    0.95,
-                    0.6
-            ]]
-             },
-             layout: {
-                visibility: "none"
-             }
-        },
-        labelLayerId
-    )
+    //         map.addLayer({      
+    //         id: "parcels-rdAge",  
+    //         type: "fill",
+    //         source: "parcels",
+    //         paint: {
+    //             "fill-color": [
+    //                 "case", ["==", ["get", "rd_age_comp1_mm"], null], 'transparent',
+    //                 ["interpolate", 
+    //                 ["linear"],
+    //                 ["get", "rd_age_comp1_mm"],
+    //                 0,
+    //                 riskDisplacementPalette[0], 
+    //                 0.23,
+    //                 riskDisplacementPalette[1],
+    //                 0.46,
+    //                 riskDisplacementPalette[2],
+    //                 0.71,
+    //                 riskDisplacementPalette[3],
+    //                 0.94,
+    //                 riskDisplacementPalette[4]]],
+    //             "fill-outline-color": "white",
+    //             "fill-opacity": [
+    //                 "case", ["==", ["get", "rd_age_comp1_mm"], null], 0,
+    //                 ["case",
+    //                 ["boolean", ["feature-state", "hover"], false],
+    //                 0.95,
+    //                 0.6
+    //         ]]
+    //          },
+    //          layout: {
+    //             visibility: "none"
+    //          }
+    //     },
+    //     labelLayerId
+    // )
 
-    map.addLayer({      
-            id: "parcels-rdRace",  
-            type: "fill",
-            source: "parcels",
-            paint: {
-                "fill-color": [
-                    "case", ["==", ["get", "rd_re_comp1_mm"], null], 'transparent',
-                    ["interpolate", 
-                    ["linear"],
-                    ["get", "rd_re_comp1_mm"],
-                    0,
-                    riskDisplacementPalette[0], 
-                    0.23,
-                    riskDisplacementPalette[1],
-                    0.46,
-                    riskDisplacementPalette[2],
-                    0.71,
-                    riskDisplacementPalette[3],
-                    0.94,
-                    riskDisplacementPalette[4]]],
-                "fill-outline-color": "white",
-                "fill-opacity": [
-                    "case", ["==", ["get", "rd_re_comp1_mm"], null], 0,
-                    ["case",
-                    ["boolean", ["feature-state", "hover"], false],
-                    0.95,
-                    0.6
-            ]]
-             },
-             layout: {
-                visibility: "none"
-             }
-        },
-        labelLayerId
-    )
+    // map.addLayer({      
+    //         id: "parcels-rdRace",  
+    //         type: "fill",
+    //         source: "parcels",
+    //         paint: {
+    //             "fill-color": [
+    //                 "case", ["==", ["get", "rd_re_comp1_mm"], null], 'transparent',
+    //                 ["interpolate", 
+    //                 ["linear"],
+    //                 ["get", "rd_re_comp1_mm"],
+    //                 0,
+    //                 riskDisplacementPalette[0], 
+    //                 0.23,
+    //                 riskDisplacementPalette[1],
+    //                 0.46,
+    //                 riskDisplacementPalette[2],
+    //                 0.71,
+    //                 riskDisplacementPalette[3],
+    //                 0.94,
+    //                 riskDisplacementPalette[4]]],
+    //             "fill-outline-color": "white",
+    //             "fill-opacity": [
+    //                 "case", ["==", ["get", "rd_re_comp1_mm"], null], 0,
+    //                 ["case",
+    //                 ["boolean", ["feature-state", "hover"], false],
+    //                 0.95,
+    //                 0.6
+    //         ]]
+    //          },
+    //          layout: {
+    //             visibility: "none"
+    //          }
+    //     },
+    //     labelLayerId
+    // )
 
    
     map.addLayer({ 
@@ -990,6 +998,12 @@ function getStopsFromLayer(layerId) {
   return [];
 }
 
+const customLabels = {
+  "parcels-rdAge": { min: "Lower risk", max: "Higher risk" },
+  "parcels-rdRace": { min: "Lower risk", max: "Higher risk" }
+};
+
+
 function renderBivariateLegend() {   // use image legend for MVA
   const legendImage = "https://raw.githubusercontent.com/CommunityScale/Eastside/22e61786b02e1f8ddf69e96a6b968d3db259faef/images/mva_legend.png";  
 
@@ -1007,10 +1021,6 @@ function renderBivariateLegend() {   // use image legend for MVA
   }
   dataLayerContainer.innerHTML = html;
 }
-
-
-
-
 
 
 // Define formatting by layer type (univariate)
@@ -1053,15 +1063,13 @@ function renderLegendFromStops(layerId) {
   const palette = palettesByLayer[layerId] || [];
 
   function getLabel(stop) {
-    const match = palette.find(p => 
+    const match = palette.find(p =>
       (p.value === stop.value) || (p.color.toLowerCase() === stop.color.toLowerCase())
     );
-    return match?.label || formatLegendLabel(stop.value, layerId); // fallback to data value if no label
+    return match?.label || formatLegendLabel(stop.value, layerId);
   }
 
-  //inject default text?? here??
-
-  //prevent duplicates
+  // prevent duplicates
   const seen = new Set();
   const uniqueStops = stops.filter(stop => {
     const label = getLabel(stop);
@@ -1071,44 +1079,54 @@ function renderLegendFromStops(layerId) {
     return true;
   });
 
-// Generate HTML for the data-layer legend
-const dataLayerHtml = uniqueStops.map((stop, index) => {
-  const next = uniqueStops[index + 1];
-  const label = getLabel(stop); 
+  const dataLayerHtml = uniqueStops.map((stop, index) => {
+    const next = uniqueStops[index + 1];
+    const label = getLabel(stop);
 
-  // Show ranges if numeric
-  let displayLabel = label;
-  const isNumeric = typeof stop.value === 'number';
+    const isFirst = index === 0;
+    const isLast  = index === uniqueStops.length - 1;
 
-  if (isNumeric && next) {
-    displayLabel = index === 0
-      ? `< ${getLabel(next)}`
-      : `${label} – ${getLabel(next)}`;
-  } else if (isNumeric && index === uniqueStops.length - 1) {
-    displayLabel = `≥ ${label}`;
+    let displayLabel = "";
+
+    if (customLabels[layerId]) {
+      // Special case: rdAge / rdRace
+      if (isFirst) {
+        displayLabel = customLabels[layerId].min;
+      } else if (isLast) {
+        displayLabel = customLabels[layerId].max;
+      } else {
+        // Keep spacing but hide text
+        displayLabel = `<span class="invisible">${label}</span>`;
+      }
+    } else {
+      // Default behavior for everything else
+      const isNumeric = typeof stop.value === 'number';
+      if (isNumeric && next && isFirst) {
+        displayLabel = `< ${getLabel(next)}`;
+      } else if (isNumeric && isLast) {
+        displayLabel = `≥ ${label}`;
+      } else {
+        displayLabel = label;
+      }
+    }
+
+    return `
+      <div class="flex items-center gap-2">
+        <span class="w-3.5 h-3.5 inline-block rounded-sm" style="background-color: ${stop.color};"></span>
+        <span>${displayLabel}</span>
+      </div>
+    `;
+  }).join('');
+
+  let dataLayerContainer = document.getElementById('legend-data-layers');
+  if (!dataLayerContainer) {
+    dataLayerContainer = document.createElement('div');
+    dataLayerContainer.id = 'legend-data-layers';
+    legendContent.prepend(dataLayerContainer);
   }
-
-  return `
-    <div class="flex items-center gap-2">
-      <span class="w-3.5 h-3.5 inline-block rounded-sm" style="background-color: ${stop.color};"></span>
-      <span>${displayLabel}</span>
-    </div>
-  `;
-}).join('');
-
-// Ensure a container for data-layer entries exists
-let dataLayerContainer = document.getElementById('legend-data-layers');
-if (!dataLayerContainer) {
-  dataLayerContainer = document.createElement('div');
-  dataLayerContainer.id = 'legend-data-layers';
-  legendContent.prepend(dataLayerContainer); // insert at top of legend
+  dataLayerContainer.innerHTML = dataLayerHtml;
 }
 
-// Update only the data-layer container, leaving overlays untouched
-dataLayerContainer.innerHTML = dataLayerHtml;
-
-
-}
 
 //test overlay legend parts
 document.querySelectorAll('.overlay-toggle').forEach(input => {
@@ -1544,7 +1562,7 @@ layerSelect.addEventListener('change', (e) => {
             case "parcels-rdAge": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_age_comp1_mm != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_comp1_mm}.` : 'No score available.'}
+                <div class="popup-content">${attributes.rd_age_comp1_mm != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_comp1_mm}/1.` : 'No score available.'}
                 </div>`;
             break;
             }
@@ -1552,7 +1570,7 @@ layerSelect.addEventListener('change', (e) => {
             case "parcels-rdRace": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_re_comp1_mm != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp1_mm}.` : 'No score available.'} 
+                <div class="popup-content">${attributes.rd_re_comp1_mm != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp1_mm}/1.` : 'No score available.'} 
                 </div>`;
             break;
             }
@@ -1756,12 +1774,16 @@ const layerDescriptions = { //edit/update as needed; some base text should be re
     <p>Where might communities be more sensitive to market forces, such as gentrification? This <strong>risk of displacement</strong> analysis assigns a 0-1 composite score to each parcel based on indexed Census tract data. The higher the score, the greater the potential risk of displacement is within the Census tract. The scores here consider the proportion of senior householders, length of time in unit, and difference in area median home values.</p><br>
     <p><em>Source(s):</em> Tables B01001, B25039, B25077, 2023 ACS 5-year estimates; CommunityScale.</p> 
   `,
-  'parcels-rdAge': `
+  'parcels-rdRace': `
     <p>Where might communities be more sensitive to market forces, such as gentrification? This <strong>risk of displacement</strong> analysis assigns a 0-1 composite score to each parcel based on indexed Census tract data. The higher the score, the greater the potential risk of displacement is within the Census tract. The scores here consider the proportion of Black householders, the proportion of Latino householders, length of time in unit, and difference in area median home values.</p><br>
     <p><em>Source(s):</em> Tables B25039, B25077, B25140, 2023 ACS 5-year estimates; CommunityScale.</p> 
   `,
   'parcels-pctLV': `
     <p><strong>Land value as a percent of total parcel value</strong>. In urban areas, higher percentages may indicate urban blight, vacant land, or aging housing stock.</p><br>
+    <p><em>Source(s):</em> 2025 Marion County, IN, Assessor's Office parcel database; CommunityScale.</p>
+  `,
+  'parcels-unitAge': `
+    <p>Where data is available, parcels are mapped by unit construction year.</p><br>
     <p><em>Source(s):</em> 2025 Marion County, IN, Assessor's Office parcel database; CommunityScale.</p>
   `,
   'parcels-landuse': `
