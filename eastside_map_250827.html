@@ -171,6 +171,14 @@
           </div>
         <span class="ms-2 leading-snug">Hide all non-residential parcels</span>
     </label>
+    <label class="flex items-center justify-between w-full text-sm text-gray-700">
+      <div class="relative">
+          <input type="checkbox" id="toggleCommercial" class="sr-only overlay-toggle peer" />
+          <div class="w-6 h-3.5 bg-gray-300 rounded-full peer-checked:bg-gray-600 transition-colors"></div>
+          <div class="absolute top-[2px] left-[2px] w-2.5 h-2.5 bg-white border border-gray-400 rounded-full transition-transform peer-checked:translate-x-[10px]"></div>
+        </div>
+      <span class="ms-2 leading-snug">Hide all non-commercial parcels</span>
+  </label>
    
   </div>
 </div>
@@ -443,7 +451,7 @@
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/32eb6aace44d7ccf7aef423a600960db3377add6/Eastside_UpdatedParcels_Pared_250825.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -549,7 +557,7 @@ const interpolateLayers = [
             id: "parcels-pctLV",
             property: "pctLandVal",
             data_source: "parcels",
-            source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/32eb6aace44d7ccf7aef423a600960db3377add6/Eastside_UpdatedParcels_Pared_250825.geojson",
+            source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
             colors: sequentialPalette,
             defaultViz: "none"
         },
@@ -557,7 +565,7 @@ const interpolateLayers = [
           id: 'parcels-rdAge',
           property: "rd_age_comp1_mm",
           data_source: "parcels",
-          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/32eb6aace44d7ccf7aef423a600960db3377add6/Eastside_UpdatedParcels_Pared_250825.geojson",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
           colors: riskDisplacementPalette,
           defaultViz: "none"
         },
@@ -565,7 +573,7 @@ const interpolateLayers = [
           id: 'parcels-rdRace',
           property: "rd_re_comp1_mm",
           data_source: "parcels",
-          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/32eb6aace44d7ccf7aef423a600960db3377add6/Eastside_UpdatedParcels_Pared_250825.geojson",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
           colors: riskDisplacementPalette,
           defaultViz: "none"
         }
@@ -623,7 +631,7 @@ const interpolateLayers = [
         )
     
 
-    map.addLayer({ //needs a legend!!
+    map.addLayer({ 
             id: "tracts-mva",  
             type: "fill",
             source: "tracts",
@@ -1373,7 +1381,11 @@ layerSelect.addEventListener('change', (e) => {
   
 
     let showOnlyResidential = false; 
-    const propClass = "RESIDENTIAL"; // Property class flag 
+    let showOnlyCommercial = false;
+
+    const resPropClass = "RESIDENTIAL"; 
+    const commPropClass = "COMMERCIAL"; 
+
     const parcelLayerIds = [ 
         "parcels-landuse",
         "parcels-unitAge",
@@ -1382,18 +1394,38 @@ layerSelect.addEventListener('change', (e) => {
         "parcels-rdRace",
     ];
 
-    const studyAreaFilter = ["==", ["get", "Property_Class"], propClass]; 
+    //Combined filter so it won't overwrite the other if both are 'on'
+    function updateFilters() {
+        let filter = null;
 
-    document.getElementById("toggleResidential").addEventListener("change", (e) => {
-        showOnlyResidential = e.target.checked;
-        const filter = showOnlyResidential 
-            ? studyAreaFilter
-            : null;
+        if (showOnlyResidential && showOnlyCommercial) {
+            filter = ["any",
+                ["==", ["get", "Property_Class"], resPropClass],
+                ["==", ["get", "Property_Class"], commPropClass]
+            ];
+        } else if (showOnlyResidential) {
+            filter = ["==", ["get", "Property_Class"], resPropClass];
+        } else if (showOnlyCommercial) {
+            filter = ["==", ["get", "Property_Class"], commPropClass];
+        } else {
+            filter = null; // everything visible
+        }
 
         parcelLayerIds.forEach(id => {
             map.setFilter(id, filter);
         });
-    });
+      }
+
+    //toggles
+    document.getElementById("toggleResidential").addEventListener("change", (e) => {
+        showOnlyResidential = e.target.checked;
+        updateFilters();
+      });
+
+    document.getElementById("toggleCommercial").addEventListener("change", (e) => {
+        showOnlyCommercial = e.target.checked;
+        updateFilters();
+      });
 
     map.on('click', (e) => { //pop-up logic!! just add additional layers to the array and case logic below to create new pop-up!!
         const popUpLayers = [
@@ -1443,7 +1475,7 @@ layerSelect.addEventListener('change', (e) => {
             return;
 }
 
-        const name = attributes.Address_1; //for parcels/reused naming where it would be chaotic to reuse same lines in multiple blocks; use lines like these to deal with names of non-census geos that require some special formatting 
+        const name = attributes.Full_Address_1; //for parcels/reused naming where it would be chaotic to reuse same lines in multiple blocks; use lines like these to deal with names of non-census geos that require some special formatting 
         const parcelDisplayName = (name === null || name === undefined || name.trim() === "") ? `Address unavailable` : `${name}`; //set blank strings to same value as null/undefined!!
 
         switch (geoId) {
