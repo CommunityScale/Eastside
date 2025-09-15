@@ -375,6 +375,79 @@
                 { key: "UNK", color: "#bdc9e1", label: "Unknown" }
             ]
 
+          //zoning codes and labels 
+          const zoning = [ //Indianapolis/Marion County
+              { key:'DA', label: 'Dwelling Agriculture District' },
+              { key:'DS', label: 'Dwelling Suburban District' },
+              { key:'D1', label: 'Dwelling District One' },
+              { key:'D2', label: 'Dwelling District Two' },
+              { key:'D3', label: 'Dwelling District Three' }, 
+              { key:'D4', label: 'Dwelling District Four' },
+              { key:'D5', label: 'Dwelling District Five' },
+              { key:'D5II', label: 'Dwelling District Five-Two' },
+              { key:'D6', label: 'Dwelling District Six' },
+              { key:'D6II', label: 'Dwelling District Six-Two' },
+              { key:'D7', label: 'Dwelling District Seven' },
+              { key:'D8', label: 'Dwelling District Eight' },
+              { key:'D9', label: 'Dwelling District Nine' },
+              { key:'D10', label: 'Dwelling District Ten' },
+              { key:'D11', label: 'Dwelling District Eleven' },
+              { key:'DP', label: 'Planned Unit Development District' },
+              { key:'C1', label: 'Office-Buffer District' },
+              { key:'C3', label: 'Neighborhood Commercial District' },
+              { key:'C4', label: 'Community-Regional District' },
+              { key:'C5', label: 'General Commercial District' },
+              { key:'C7', label: 'High-Intensity Commercial District' },
+              { key:'CS', label: 'Commercial – Special District' },
+              { key:'MU1', label: 'Mixed-Use One District' },
+              { key:'MU2', label: 'Mixed-Use Two District' },
+              { key:'MU3', label: 'Mixed-Use Three District' },
+              { key:'MU4', label: 'Mixed-Use Four District' },
+              { key:'CBD1', label: 'Central Business District One' },
+              { key:'CBD2', label: 'Central Business District Two' },
+              { key:'CBD3', label: 'Central Business District Three' },
+              { key:'CBDS', label: 'Central Business District Special' },
+              { key:'I1', label: 'Restricted Industrial District' },
+              { key:'I2', label: 'Light Industrial District' },
+              { key:'I3', label: 'Medium Industrial District' },
+              { key:'I4', label: 'Heavy Industrial District' },
+              { key:'HP1', label: 'Lockerbie Square District' },
+              { key:'PK1', label: 'Park District One' },
+              { key:'PK2', label: 'Park District Two' },
+              { key:'HD1', label: 'Hospital District One' },
+              { key:'HD2', label: 'Hospital District Two' },
+              { key:'SZ1', label: 'Speedway Main Street District' },
+              { key:'SZ2', label: 'Speedway Industrial District' },
+              { key:'UQ1', label: 'University Quarter District One' },
+              { key:'UQ2', label: 'University Quarter District Two' },
+              { key:'SU1', label: 'Religious Use' },
+              { key:'SU2', label: 'School' },
+              { key:'SU3', label: 'Golf Course' },
+              { key:'SU5', label: 'Radio Receiving or Broadcasting Tower' },
+              { key:'SU6', label: 'Hospital, Sanitarium, Nursing Home' },
+              { key:'SU7', label: 'Charitable Institution' },
+              { key:'SU8', label: 'Correctional or Penal Institution, Diversion Center' },
+              { key:'SU9', label: 'Government Buildings or Grounds' },
+              { key:'SU10', label: 'Cemetery' },
+              { key:'SU13', label: 'Sanitary Landfill' },
+              { key:'SU16', label: 'Indoor or Outdoor Entertainment or Recreation' },
+              { key:'SU18', label: 'Light or Power Substation' },
+              { key:'SU20', label: 'Telephone Exchange Offices' },
+              { key:'SU23', label: 'Permanent Sand or Gravel Plant' },
+              { key:'SU28', label: 'Petroleum Refinery and Storage' },
+              { key:'SU34', label: 'Club Room or Ballroom' },
+              { key:'SU35', label: 'Telecommunications Tower' },
+              { key:'SU37', label: 'Library' },
+              { key:'SU38', label: 'Community Center' },
+              { key:'SU39', label: 'Water Tank' },
+              { key:'SU41', label: 'Sewage/Garbage Disposal Plant' },
+              { key:'SU42', label: 'Gas Utility' },
+              { key:'SU43', label: 'Power Transmission Lines' },
+              { key:'SU44', label: 'Off-track Mutuel Wagering Facilities' },
+              { key:'SU45', label: 'Zoo' },
+              { key:'SU46', label: 'Airport' }
+            ]
+
           //mva colors/stops 
           const bivariateStops = [
               ["HDCQ", "#7a9232"],
@@ -451,7 +524,7 @@
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -557,23 +630,23 @@ const interpolateLayers = [
             id: "parcels-pctLV",
             property: "pctLandVal",
             data_source: "parcels",
-            source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
+            source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
             colors: sequentialPalette,
             defaultViz: "none"
         },
         {
           id: 'parcels-rdAge',
-          property: "rd_age_comp1_mm",
+          property: "rd_age_com",
           data_source: "parcels",
-          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
           colors: riskDisplacementPalette,
           defaultViz: "none"
         },
         {
           id: 'parcels-rdRace',
-          property: "rd_re_comp1_mm",
+          property: "rd_re_comp",
           data_source: "parcels",
-          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/5d99f6733d58dff72afc5b937b3716b10b564abd/Eastside_ParcelsWithUpdatedInfo_250908.geojson",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
           colors: riskDisplacementPalette,
           defaultViz: "none"
         }
@@ -1107,15 +1180,18 @@ function renderLegendFromStops(layerId) {
         displayLabel = `<span class="invisible">${label}</span>`;
       }
     } else {
-      // Default behavior for everything else
+     // Defaults for all others/not custom!!
       const isNumeric = typeof stop.value === 'number';
       if (isNumeric && next && isFirst) {
         displayLabel = `< ${getLabel(next)}`;
       } else if (isNumeric && isLast) {
         displayLabel = `≥ ${label}`;
+      } else if (isNumeric && next) {
+        displayLabel = `${label} – ${getLabel(next)}`;
       } else {
         displayLabel = label;
       }
+
     }
 
     return `
@@ -1351,8 +1427,8 @@ layerSelect.addEventListener('change', (e) => {
             'tracts-pctCostBurdenedOwners': 'cbOwn',
             'tracts-pctChIncome': 'pctChInfIn',
             'tracts-mva': 'class',
-            'parcels-rdRace': 'rd_re_comp1_mm',
-            'parcels-rdAge': 'rd_age_comp1_mm',
+            'parcels-rdRace': 'rd_re_comp',
+            'parcels-rdAge': 'rd_age_com',
             'parcels-unitAge': 'yrBuilt', //admin layer??
         };
 
@@ -1400,13 +1476,13 @@ layerSelect.addEventListener('change', (e) => {
 
         if (showOnlyResidential && showOnlyCommercial) {
             filter = ["any",
-                ["==", ["get", "Property_Class"], resPropClass],
-                ["==", ["get", "Property_Class"], commPropClass]
+                ["==", ["get", "Property_C"], resPropClass],
+                ["==", ["get", "Property_C"], commPropClass]
             ];
         } else if (showOnlyResidential) {
-            filter = ["==", ["get", "Property_Class"], resPropClass];
+            filter = ["==", ["get", "Property_C"], resPropClass];
         } else if (showOnlyCommercial) {
-            filter = ["==", ["get", "Property_Class"], commPropClass];
+            filter = ["==", ["get", "Property_C"], commPropClass];
         } else {
             filter = null; // everything visible
         }
@@ -1427,6 +1503,8 @@ layerSelect.addEventListener('change', (e) => {
         updateFilters();
       });
 
+
+    //pop-ups
     map.on('click', (e) => { //pop-up logic!! just add additional layers to the array and case logic below to create new pop-up!!
         const popUpLayers = [
             "parcels-pctLV", 
@@ -1442,6 +1520,35 @@ layerSelect.addEventListener('change', (e) => {
             "parcels-rdRace",
             "tracts-pctChIncome",
         ]
+
+        function getTransactionYear(date) {
+            if (!date) return "Unavailable";
+
+            const parts = date.split("/");
+            if (parts.length !== 3) return "Unavailable";
+
+            return parts[2]; // transaction year
+          }
+
+        function reorderName(name) {
+            if (!name) return "Unavailable";
+
+            const toTitleCase = str =>
+              str
+                .toLowerCase()
+                .split(" ")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ");
+
+            if (name.includes(",")) {
+              // Flip names as needed
+              const [last, first] = name.split(",").map(s => s.trim());
+              return (`${first} ${last}`); //toTitleCase ??
+            }
+
+            // Apply title case ?? toTitleCase
+            return (name);
+          }
 
         const visiblePopupLayers = popUpLayers.filter(id => {
         const layer = map.getLayer(id);
@@ -1475,7 +1582,7 @@ layerSelect.addEventListener('change', (e) => {
             return;
 }
 
-        const name = attributes.Full_Address_1; //for parcels/reused naming where it would be chaotic to reuse same lines in multiple blocks; use lines like these to deal with names of non-census geos that require some special formatting 
+        const name = attributes.Full_Addre; //for parcels/reused naming where it would be chaotic to reuse same lines in multiple blocks; use lines like these to deal with names of non-census geos that require some special formatting 
         const parcelDisplayName = (name === null || name === undefined || name.trim() === "") ? `Address unavailable` : `${name}`; //set blank strings to same value as null/undefined!!
 
         switch (geoId) {
@@ -1580,21 +1687,78 @@ layerSelect.addEventListener('change', (e) => {
             break;
             }
 
+            // case "parcels-landuse": {
+            //     const propClassVal = attributes.USE14_LABE;
+            //     //const propClassMatch = landUseColor.find(entry => entry.key === propClassVal); //update!!
+            //     const displayPropClass = propClassVal ? propClassVal : "data unavailable";
+            //     html = `
+            //     <div class="popup-header">${parcelDisplayName}</div>
+            //     <div class="popup-content">Current land use description: ${displayPropClass}.
+            //     </div>`;
+            // break;
+            // }
+
             case "parcels-landuse": {
                 const propClassVal = attributes.USE14_LABE;
                 //const propClassMatch = landUseColor.find(entry => entry.key === propClassVal); //update!!
-                const displayPropClass = propClassVal ? propClassVal : "data unavailable";
+                const zoneMatch = zoning.find(entry => entry.key === attributes.CODE1);
+                const displayZone = zoneMatch ? `${zoneMatch.key}: ${zoneMatch.label}` : "Unavailable";
+                const transactionYear = getTransactionYear(attributes.Deed_Date);
+                let owner = attributes.Name;  
+                  if (!owner || owner.trim() === "") {
+                  owner = "Unavailable";
+                  } else {
+                    owner = owner.replace(/\s*&\s*$/, "");
+                    owner = reorderName(owner);
+                  }
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">Current land use description: ${displayPropClass}.
+
+                  <div class="grid grid-cols-2 gap-y-3 gap-x-4">
+                    <div class="font-medium text-gray-700">Owner</div>
+                    <div class="text-gray-600">${owner}</div>
+
+                    <div class="font-medium text-gray-700">Total assessed value</div>
+                    <div class="text-gray-600">
+                      ${attributes.Gross_Asse ? "$" + Number(attributes.Gross_Asse).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+
+                    <div class="font-medium text-gray-700">Land value</div>
+                    <div class="text-gray-600">
+                      ${attributes.Gross_Land ? "$" + Number(attributes.Gross_Land).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+
+                    <div class="font-medium text-gray-700">Improvements</div>
+                    <div class="text-gray-600">
+                      ${attributes.Gross_Impr ? "$" + Number(attributes.Gross_Impr).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+
+                    <div class="font-medium text-gray-700">Last transaction</div>
+                    <div class="text-gray-600">
+                      ${transactionYear} 
+                    </div>
+
+                    <div class="font-medium text-gray-700">Zoning</div>
+                    <div class="text-gray-600">${displayZone}</div>
+
+                    <div class="font-medium text-gray-700">Current use</div>
+                    <div class="text-gray-600">${attributes.USE14_LABE || "Unavailable"}</div>
+
+                    <div class="font-medium text-gray-700">Parcel size</div>
+                    <div class="text-gray-600">
+                      ${attributes.acreage ? attributes.acreage + " acres" : "Unavailable"}
+                    </div>
+                  </div>
                 </div>`;
-            break;
+                break;
             }
+
+
 
             case "parcels-rdAge": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_age_comp1_mm != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_comp1_mm}/1.` : 'No score available.'}
+                <div class="popup-content">${attributes.rd_age_com != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_comp1_mm}/1.` : 'No score available.'}
                 </div>`;
             break;
             }
@@ -1602,7 +1766,7 @@ layerSelect.addEventListener('change', (e) => {
             case "parcels-rdRace": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_re_comp1_mm != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp1_mm}/1.` : 'No score available.'} 
+                <div class="popup-content">${attributes.rd_re_comp != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp1_mm}/1.` : 'No score available.'} 
                 </div>`;
             break;
             }
