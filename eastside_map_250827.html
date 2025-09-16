@@ -1543,11 +1543,11 @@ layerSelect.addEventListener('change', (e) => {
             if (name.includes(",")) {
               // Flip names as needed
               const [last, first] = name.split(",").map(s => s.trim());
-              return (`${first} ${last}`); //toTitleCase ??
+              return toTitleCase(`${first} ${last}`); 
             }
 
-            // Apply title case ?? toTitleCase
-            return (name);
+            // Apply title case 
+            return toTitleCase(name);
           }
 
         const visiblePopupLayers = popUpLayers.filter(id => {
@@ -1714,51 +1714,66 @@ layerSelect.addEventListener('change', (e) => {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
 
-                  <div class="grid grid-cols-2 gap-y-3 gap-x-4">
-                    <div class="font-medium text-gray-700">Owner</div>
-                    <div class="text-gray-600">${owner}</div>
-
-                    <div class="font-medium text-gray-700">Total assessed value</div>
-                    <div class="text-gray-600">
-                      ${attributes.Gross_Asse ? "$" + Number(attributes.Gross_Asse).toLocaleString("en-US") : "Unavailable"}
+                <div class="space-y-2">
+                    <!-- Row -->
+                    <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                      <div class="font-medium text-gray-700">Owner</div>
+                      <div class="text-gray-600">${owner}</div>
                     </div>
 
-                    <div class="font-medium text-gray-700">Land value</div>
-                    <div class="text-gray-600">
-                      ${attributes.Gross_Land ? "$" + Number(attributes.Gross_Land).toLocaleString("en-US") : "Unavailable"}
+                    <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                        <div class="font-medium text-gray-700">Total assessed value</div>
+                        <div class="text-gray-600">
+                          ${attributes.Gross_Asse ? "$" + Number(attributes.Gross_Asse).toLocaleString("en-US") : "Unavailable"}
+                        </div>
+                      </div>
+
+                    <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                        <div class="font-medium text-gray-700">Land value</div>
+                        <div class="text-gray-600">
+                          ${attributes.Gross_Land ? "$" + Number(attributes.Gross_Land).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                        <div class="font-medium text-gray-700">Improvements</div>
+                        <div class="text-gray-600">
+                          ${attributes.Gross_Impr ? "$" + Number(attributes.Gross_Impr).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                      <div class="font-medium text-gray-700">Last transaction</div>
+                      <div class="text-gray-600">
+                        ${transactionYear} 
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                      <div class="font-medium text-gray-700">Zoning</div>
+                      <div class="text-gray-600">${displayZone}</div>
                     </div>
 
-                    <div class="font-medium text-gray-700">Improvements</div>
-                    <div class="text-gray-600">
-                      ${attributes.Gross_Impr ? "$" + Number(attributes.Gross_Impr).toLocaleString("en-US") : "Unavailable"}
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                      <div class="font-medium text-gray-700">Current use</div>
+                      <div class="text-gray-600">${attributes.USE14_LABE || "Unavailable"}</div>
                     </div>
 
-                    <div class="font-medium text-gray-700">Last transaction</div>
-                    <div class="text-gray-600">
-                      ${transactionYear} 
-                    </div>
-
-                    <div class="font-medium text-gray-700">Zoning</div>
-                    <div class="text-gray-600">${displayZone}</div>
-
-                    <div class="font-medium text-gray-700">Current use</div>
-                    <div class="text-gray-600">${attributes.USE14_LABE || "Unavailable"}</div>
-
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2 last:border-0">
                     <div class="font-medium text-gray-700">Parcel size</div>
                     <div class="text-gray-600">
                       ${attributes.acreage ? attributes.acreage + " acres" : "Unavailable"}
                     </div>
                   </div>
+                  </div>
                 </div>`;
                 break;
             }
 
-
-
             case "parcels-rdAge": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_age_com != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_comp1_mm}/1.` : 'No score available.'}
+                <div class="popup-content">${attributes.rd_age_com != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_com}/1.` : 'No score available.'}
                 </div>`;
             break;
             }
@@ -1766,7 +1781,7 @@ layerSelect.addEventListener('change', (e) => {
             case "parcels-rdRace": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_re_comp != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp1_mm}/1.` : 'No score available.'} 
+                <div class="popup-content">${attributes.rd_re_comp != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp}/1.` : 'No score available.'} 
                 </div>`;
             break;
             }
