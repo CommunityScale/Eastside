@@ -1663,11 +1663,73 @@ layerSelect.addEventListener('change', (e) => {
 
             case "parcels-pctLV": {
                 const pctLandValue = attributes.pctLandVal;
+            //     html = `
+            //     <div class="popup-header">${parcelDisplayName}</div>
+            //     <div class="popup-content">${pctLandValue != null ? `Land value accounts for ${Math.round(pctLandValue * 1000) / 10}% of Parcel #${attributes.PARCEL_C}'s total assessed value.` : 'No available data.'}
+            //     </div>`;
+            // break;
+            // }
+
+            // {
+                //const propClassVal = attributes.USE14_LABE;
+                //const propClassMatch = landUseColor.find(entry => entry.key === propClassVal); //update!!
+                //const zoneMatch = zoning.find(entry => entry.key === attributes.CODE1);
+                //const displayZone = zoneMatch ? `${zoneMatch.key}: ${zoneMatch.label}` : "Unavailable";
+                const transactionYear = getTransactionYear(attributes.Deed_Date);
+                // let owner = attributes.Name;  
+                //   if (!owner || owner.trim() === "") {
+                //   owner = "Unavailable";
+                //   } else {
+                //     owner = owner.replace(/\s*&\s*$/, "");
+                //     owner = reorderName(owner);
+                //   }
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${pctLandValue != null ? `Land value accounts for ${Math.round(pctLandValue * 1000) / 10}% of Parcel #${attributes.PARCEL_C}'s total assessed value.` : 'No available data.'}
+
+                <div class="space-y-2">
+                    <!-- Row -->
+                    <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                      <div class="font-medium text-gray-700">Land value as percent of total value</div>
+                      <div class="text-gray-600">${pctLandValue != null ? `${Math.round(pctLandValue * 1000) / 10}%` : 'No available data.'}</div>
+                    </div>
+
+                    <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                        <div class="font-medium text-gray-700">Total assessed value</div>
+                        <div class="text-gray-600">
+                          ${attributes.Gross_Assessed_Value ? "$" + Number(attributes.Gross_Assessed_Value).toLocaleString("en-US") : "Unavailable"}
+                        </div>
+                      </div>
+
+                    <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                        <div class="font-medium text-gray-700">Land value</div>
+                        <div class="text-gray-600">
+                          ${attributes.Gross_Land_Value ? "$" + Number(attributes.Gross_Land_Value).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                        <div class="font-medium text-gray-700">Improvements</div>
+                        <div class="text-gray-600">
+                          ${attributes.Gross_Improvement_Value ? "$" + Number(attributes.Gross_Improvement_Value).toLocaleString("en-US") : "Unavailable"}
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
+                      <div class="font-medium text-gray-700">Last transaction</div>
+                      <div class="text-gray-600">
+                        ${transactionYear} 
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 border-b border-gray-200/60 py-2 last:border-0">
+                    <div class="font-medium text-gray-700">Parcel size</div>
+                    <div class="text-gray-600">
+                      ${attributes.acreage ? attributes.acreage + " acres" : "Unavailable"}
+                    </div>
+                  </div>
+                  </div>
                 </div>`;
-            break;
+                break;
             }
 
             case "parcels-unitAge": {
@@ -1691,16 +1753,6 @@ layerSelect.addEventListener('change', (e) => {
             break;
             }
 
-            // case "parcels-landuse": {
-            //     const propClassVal = attributes.USE14_LABE;
-            //     //const propClassMatch = landUseColor.find(entry => entry.key === propClassVal); //update!!
-            //     const displayPropClass = propClassVal ? propClassVal : "data unavailable";
-            //     html = `
-            //     <div class="popup-header">${parcelDisplayName}</div>
-            //     <div class="popup-content">Current land use description: ${displayPropClass}.
-            //     </div>`;
-            // break;
-            // }
 
             case "parcels-landuse": {
                 const propClassVal = attributes.USE14_LABE;
