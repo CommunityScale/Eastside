@@ -362,9 +362,11 @@
                 { key: "R-M", color: "#fff8bf", label: "Medium density residential" },
                 { key: "R-H", color: "#fff17f", label: "High density residential" },
                 { key: "V-R", color: "#ffab3c", label: "Vacant - Residential" },
+                { key: "V-R-S", color: "#ffab3c", label: "Vacant - Residential"},
                 { key: "MU-R", color: "#d899dd", label: "Mixed use with residential" },
                 { key: "COMM", color: "#df2d83", label: "Commercial" },
                 { key: "V-C", color: "#f2b1c2", label: "Vacant - Commercial"}, 
+                { key: "V-C-S", color: "#f2b1c2", label: "Vacant - Commercial"},
                 { key: 'C-U', color: "#6e79dc", label: 'Community use'}, 
                 { key: "GR", color: "#d4f088", label: "Greenspace" },
                 { key: "UTIL", color: "#aa99ff", label: "Utility" },
@@ -524,7 +526,7 @@
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
+            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/a5c5d85c4bfe50a307384173d1795bbd3c56bcf1/Eastside_Parcels_250924.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -630,7 +632,7 @@ const interpolateLayers = [
             id: "parcels-pctLV",
             property: "pctLandVal",
             data_source: "parcels",
-            source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
+            source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/a5c5d85c4bfe50a307384173d1795bbd3c56bcf1/Eastside_Parcels_250924.geojson",
             colors: sequentialPalette,
             defaultViz: "none"
         },
@@ -638,7 +640,7 @@ const interpolateLayers = [
           id: 'parcels-rdAge',
           property: "rd_age_com",
           data_source: "parcels",
-          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/a5c5d85c4bfe50a307384173d1795bbd3c56bcf1/Eastside_Parcels_250924.geojson",
           colors: riskDisplacementPalette,
           defaultViz: "none"
         },
@@ -646,7 +648,7 @@ const interpolateLayers = [
           id: 'parcels-rdRace',
           property: "rd_re_comp",
           data_source: "parcels",
-          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/47759e39c026ca28dd942aab7e7f5bd8ead7cb33/Eastsode_Parcels_UpdatedFields_250910.geojson",
+          source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/a5c5d85c4bfe50a307384173d1795bbd3c56bcf1/Eastside_Parcels_250924.geojson", //replaced 250925 from 250910
           colors: riskDisplacementPalette,
           defaultViz: "none"
         }
@@ -737,7 +739,7 @@ const interpolateLayers = [
     ) 
 
     map.addLayer({
-                id: "parcels-landuse", //update with parcel types!!
+                id: "parcels-landuse", //update with land use palette stops 
                 type: "fill",
                 source: "parcels",
                 paint: {
@@ -748,17 +750,19 @@ const interpolateLayers = [
                         "R-M", landUsePalette[1].color,
                         "R-H", landUsePalette[2].color,
                         "V-R", landUsePalette[3].color,
-                        "MU-R", landUsePalette[4].color,
-                        "COMM", landUsePalette[5].color,
-                        "V-C", landUsePalette[6].color,
-                        "C-U", landUsePalette[7]. color,
-                        "GR", landUsePalette[8].color,
-                        "UTIL", landUsePalette[9].color,
-                        "IND", landUsePalette[10].color,
-                        "V-I", landUsePalette[11].color,
-                        "RR/RD/PK", landUsePalette[12].color,
-                        "EXE", landUsePalette[13].color,
-                        "UNK", landUsePalette[14].color,
+                        "V-R-S", landUsePalette[4].color, 
+                        "MU-R", landUsePalette[5].color,
+                        "COMM", landUsePalette[6].color,
+                        "V-C", landUsePalette[7].color,
+                        "V-C-S", landUsePalette[8].color,
+                        "C-U", landUsePalette[9]. color,
+                        "GR", landUsePalette[10].color,
+                        "UTIL", landUsePalette[11].color,
+                        "IND", landUsePalette[12].color,
+                        "V-I", landUsePalette[13].color,
+                        "RR/RD/PK", landUsePalette[14].color,
+                        "EXE", landUsePalette[15].color,
+                        "UNK", landUsePalette[16].color,
                         "#fff"
                     ],
                     "fill-outline-color": "#777777",
@@ -905,7 +909,7 @@ map.addLayer({
             filter: [
                 "in",
                 ["get", "useCode"],
-                ["literal", ["V-R", "V-C", "V-I"]]
+                ["literal", ["V-R", "V-C", "V-I", "V-C-S", "V-R-S"]]
             ]
         }, 
     ) 
@@ -1476,13 +1480,13 @@ layerSelect.addEventListener('change', (e) => {
 
         if (showOnlyResidential && showOnlyCommercial) {
             filter = ["any",
-                ["==", ["get", "Property_C"], resPropClass],
-                ["==", ["get", "Property_C"], commPropClass]
+                ["==", ["get", "Property_Class"], resPropClass],
+                ["==", ["get", "Property_Class"], commPropClass]
             ];
         } else if (showOnlyResidential) {
-            filter = ["==", ["get", "Property_C"], resPropClass];
+            filter = ["==", ["get", "Property_Class"], resPropClass];
         } else if (showOnlyCommercial) {
-            filter = ["==", ["get", "Property_C"], commPropClass];
+            filter = ["==", ["get", "Property_Class"], commPropClass];
         } else {
             filter = null; // everything visible
         }
@@ -1582,7 +1586,7 @@ layerSelect.addEventListener('change', (e) => {
             return;
 }
 
-        const name = attributes.Full_Addre; //for parcels/reused naming where it would be chaotic to reuse same lines in multiple blocks; use lines like these to deal with names of non-census geos that require some special formatting 
+        const name = attributes.Full_Address_1; //for parcels/reused naming where it would be chaotic to reuse same lines in multiple blocks; use lines like these to deal with names of non-census geos that require some special formatting 
         const parcelDisplayName = (name === null || name === undefined || name.trim() === "") ? `Address unavailable` : `${name}`; //set blank strings to same value as null/undefined!!
 
         switch (geoId) {
@@ -1724,21 +1728,21 @@ layerSelect.addEventListener('change', (e) => {
                     <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
                         <div class="font-medium text-gray-700">Total assessed value</div>
                         <div class="text-gray-600">
-                          ${attributes.Gross_Asse ? "$" + Number(attributes.Gross_Asse).toLocaleString("en-US") : "Unavailable"}
+                          ${attributes.Gross_Assessed_Value ? "$" + Number(attributes.Gross_Assessed_Value).toLocaleString("en-US") : "Unavailable"}
                         </div>
                       </div>
 
                     <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
                         <div class="font-medium text-gray-700">Land value</div>
                         <div class="text-gray-600">
-                          ${attributes.Gross_Land ? "$" + Number(attributes.Gross_Land).toLocaleString("en-US") : "Unavailable"}
+                          ${attributes.Gross_Land_Value ? "$" + Number(attributes.Gross_Land_Value).toLocaleString("en-US") : "Unavailable"}
                     </div>
                   </div>
 
                   <div class="grid grid-cols-2 border-b border-gray-200/60 py-2">
                         <div class="font-medium text-gray-700">Improvements</div>
                         <div class="text-gray-600">
-                          ${attributes.Gross_Impr ? "$" + Number(attributes.Gross_Impr).toLocaleString("en-US") : "Unavailable"}
+                          ${attributes.Gross_Improvement_Value ? "$" + Number(attributes.Gross_Improvement_Value).toLocaleString("en-US") : "Unavailable"}
                     </div>
                   </div>
 
