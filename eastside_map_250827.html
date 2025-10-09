@@ -638,7 +638,7 @@ const interpolateLayers = [
         },
         {
           id: 'parcels-rdAge',
-          property: "rd_age_com",
+          property: "rd_age_comp1_mm",
           data_source: "parcels",
           source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/54a528f2cd1c9d23d425bfd2c7486fb19a1d20dd/Eastside_Parcels_250926.geojson",
           colors: riskDisplacementPalette,
@@ -646,7 +646,7 @@ const interpolateLayers = [
         },
         {
           id: 'parcels-rdRace',
-          property: "rd_re_comp",
+          property: "rd_re_comp1_mm",
           data_source: "parcels",
           source_url: "https://raw.githubusercontent.com/CommunityScale/Eastside/54a528f2cd1c9d23d425bfd2c7486fb19a1d20dd/Eastside_Parcels_250926.geojson", //replaced 250925 from 250910
           colors: riskDisplacementPalette,
@@ -1431,8 +1431,8 @@ layerSelect.addEventListener('change', (e) => {
             'tracts-pctCostBurdenedOwners': 'cbOwn',
             'tracts-pctChIncome': 'pctChInfIn',
             'tracts-mva': 'class',
-            'parcels-rdRace': 'rd_re_comp',
-            'parcels-rdAge': 'rd_age_com',
+            'parcels-rdRace': 'rd_re_comp1_mm',
+            'parcels-rdAge': 'rd_age_comp1_mm',
             'parcels-unitAge': 'yrBuilt', //admin layer??
         };
 
@@ -1663,26 +1663,7 @@ layerSelect.addEventListener('change', (e) => {
 
             case "parcels-pctLV": {
                 const pctLandValue = attributes.pctLandVal;
-            //     html = `
-            //     <div class="popup-header">${parcelDisplayName}</div>
-            //     <div class="popup-content">${pctLandValue != null ? `Land value accounts for ${Math.round(pctLandValue * 1000) / 10}% of Parcel #${attributes.PARCEL_C}'s total assessed value.` : 'No available data.'}
-            //     </div>`;
-            // break;
-            // }
-
-            // {
-                //const propClassVal = attributes.USE14_LABE;
-                //const propClassMatch = landUseColor.find(entry => entry.key === propClassVal); //update!!
-                //const zoneMatch = zoning.find(entry => entry.key === attributes.CODE1);
-                //const displayZone = zoneMatch ? `${zoneMatch.key}: ${zoneMatch.label}` : "Unavailable";
-                const transactionYear = getTransactionYear(attributes.Deed_Date);
-                // let owner = attributes.Name;  
-                //   if (!owner || owner.trim() === "") {
-                //   owner = "Unavailable";
-                //   } else {
-                //     owner = owner.replace(/\s*&\s*$/, "");
-                //     owner = reorderName(owner);
-                //   }
+                const transactionYear = getTransactionYear(attributes.Deed_Date); 
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
 
@@ -1829,7 +1810,7 @@ layerSelect.addEventListener('change', (e) => {
             case "parcels-rdAge": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_age_com != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_com}/1.` : 'No score available.'}
+                <div class="popup-content">${attributes.rd_age_comp1_mm != null ? `Risk displacement score, with respect to age: ${attributes.rd_age_comp1_mm}/1.` : 'No score available.'}
                 </div>`;
             break;
             }
@@ -1837,7 +1818,7 @@ layerSelect.addEventListener('change', (e) => {
             case "parcels-rdRace": {
                 html = `
                 <div class="popup-header">${parcelDisplayName}</div>
-                <div class="popup-content">${attributes.rd_re_comp != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp}/1.` : 'No score available.'} 
+                <div class="popup-content">${attributes.rd_re_comp1_mm != null ? `Risk displacement score, with respect to race and ethnicity: ${attributes.rd_re_comp1_mm}/1.` : 'No score available.'} 
                 </div>`;
             break;
             }
