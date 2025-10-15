@@ -364,14 +364,15 @@
                 { key: "V-R", color: "#ffab3c", label: "Vacant - Residential" },
                 { key: "V-R-S", color: "#ffab3c", label: "Vacant - Residential"},
                 { key: "MU-R", color: "#d899dd", label: "Mixed use with residential" },
-                { key: "COMM", color: "#df2d83", label: "Commercial" },
-                { key: "V-C", color: "#f2b1c2", label: "Vacant - Commercial"}, 
-                { key: "V-C-S", color: "#f2b1c2", label: "Vacant - Commercial"},
+                { key: "COMM", color: "#f2b1c2", label: "Commercial" },
+                { key: "V-C", color: "#df2d83", label: "Vacant - Commercial"}, 
+                { key: "V-C-S", color: "#df2d83", label: "Vacant - Commercial"},
                 { key: 'C-U', color: "#6e79dc", label: 'Community use'}, 
                 { key: "GR", color: "#d4f088", label: "Greenspace" },
                 { key: "UTIL", color: "#aa99ff", label: "Utility" },
-                { key: "IND", color: "#767676", label: "Industrial" },
-                { key: "V-I", color: "#d5d5d5", label: "Vacant - Industrial"},
+                { key: "IND", color: "#d5d5d5", label: "Industrial" },
+                { key: "V-I", color: "#767676", label: "Vacant - Industrial"},
+                { key: "V-I-S", color: "#767676", label: "Vacant - Industrial"},
                 { key : "RR/RD/PK", color: "#474747", label: "Parking or Right of Way"},
                 { key: "EXE", color: "#425A70", label: "Exempt" },
                 { key: "UNK", color: "#bdc9e1", label: "Unknown" }
@@ -526,7 +527,7 @@
 
         map.addSource("parcels", {    
             type: "geojson",
-            data: "https://raw.githubusercontent.com/CommunityScale/Eastside/54a528f2cd1c9d23d425bfd2c7486fb19a1d20dd/Eastside_Parcels_250926.geojson",
+            data: "Eastside_Parcels_15_10_2025.geojson",
             promoteId: "PARCEL_C"
         })
 
@@ -760,9 +761,10 @@ const interpolateLayers = [
                         "UTIL", landUsePalette[11].color,
                         "IND", landUsePalette[12].color,
                         "V-I", landUsePalette[13].color,
-                        "RR/RD/PK", landUsePalette[14].color,
-                        "EXE", landUsePalette[15].color,
-                        "UNK", landUsePalette[16].color,
+                        "V-I-S", landUsePalette[14].color,
+                        "RR/RD/PK", landUsePalette[15].color,
+                        "EXE", landUsePalette[16].color,
+                        "UNK", landUsePalette[17].color,
                         "#fff"
                     ],
                     "fill-outline-color": "#777777",
@@ -909,7 +911,7 @@ map.addLayer({
             filter: [
                 "in",
                 ["get", "useCode"],
-                ["literal", ["V-R", "V-C", "V-I", "V-C-S", "V-R-S"]]
+                ["literal", ["V-R", "V-C", "V-I", "V-C-S", "V-R-S", "V-I-S"]]
             ]
         }, 
     ) 
@@ -1465,6 +1467,7 @@ layerSelect.addEventListener('change', (e) => {
 
     const resPropClass = "RESIDENTIAL"; 
     const commPropClass = "COMMERCIAL"; 
+    const indPropClass = "INDUSTRIAL";
 
     const parcelLayerIds = [ 
         "parcels-landuse",
@@ -1481,12 +1484,16 @@ layerSelect.addEventListener('change', (e) => {
         if (showOnlyResidential && showOnlyCommercial) {
             filter = ["any",
                 ["==", ["get", "Property_Class"], resPropClass],
-                ["==", ["get", "Property_Class"], commPropClass]
+                ["==", ["get", "Property_Class"], commPropClass],
+                ["==", ["get", "Property_Class"], indPropClass]
             ];
         } else if (showOnlyResidential) {
             filter = ["==", ["get", "Property_Class"], resPropClass];
         } else if (showOnlyCommercial) {
-            filter = ["==", ["get", "Property_Class"], commPropClass];
+            filter = ["any",
+                  ["==", ["get", "Property_Class"], commPropClass],
+                  ["==", ["get", "Property_Class"], indPropClass]
+              ];
         } else {
             filter = null; // everything visible
         }
